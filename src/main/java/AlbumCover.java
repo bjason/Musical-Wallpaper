@@ -2,6 +2,7 @@ import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
@@ -14,6 +15,7 @@ import java.util.LinkedList;
 import java.util.Map;
 
 import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 
 public class AlbumCover {
 	private BufferedImage image;
@@ -23,6 +25,7 @@ public class AlbumCover {
 	final static int IMAGE_X = 300;
 	final static int IMAGE_Y = 300;
 	final static int DETAIL_X = 1000;
+	final static String SEPARATOR = " byArtist ";
 
 	public AlbumCover(BufferedImage image, String name) {
 		this.image = image;
@@ -47,7 +50,7 @@ public class AlbumCover {
 
 	// split name
 	public String getArtistName() {
-		String str = name.split(" by ")[1];
+		String str = name.split(SEPARATOR)[1];
 		artistName = str.substring(0, str.lastIndexOf('.'));
 		return artistName;
 	}
@@ -144,17 +147,35 @@ public class AlbumCover {
 		background.setFont(new Font("Constantia", Font.BOLD, 150));
 		String[] str = getRankandTrackName();
 		background.drawString(str[0], 10, 100);
-		
+
 		background.setColor(Color.BLACK);
 		background.setFont(new Font("Constantia", Font.BOLD, 70));
 		background.drawString(str[1], 10, 170);
-		
-		//artist name
+
+		// artist name
 		background.setColor(Color.BLACK);
 		background.setFont(new Font("Constantia", Font.ITALIC, 40));
 		background.drawString(getArtistName(), 30, 220);
 
 		background.dispose();
 		return section;
+	}
+
+	// use it as
+	// BufferedImage img=new AlbumCover().scaleImage(50,50,"c:/test.jpg");
+	static public BufferedImage scaleImage(int WIDTH, int HEIGHT, String filename) {
+		BufferedImage bi = null;
+		try {
+			ImageIcon ii = new ImageIcon(filename);// path to image
+			bi = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
+			Graphics2D g2d = (Graphics2D) bi.createGraphics();
+			g2d.addRenderingHints(
+					new RenderingHints(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY));
+			g2d.drawImage(ii.getImage(), 0, 0, WIDTH, HEIGHT, null);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+		return bi;
 	}
 }

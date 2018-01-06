@@ -93,6 +93,7 @@ public class MusicalWallpaperUI extends JFrame {
             labelTable.put(new Integer(2), new JLabel("Many"));
             labelTable.put(new Integer(3), new JLabel("Rank Mode"));
             labelTable.put(new Integer(4), new JLabel("Zune Mode"));
+            //TODO zune mode change picture size
 
             int initialValue = 0; // default in case of error
             try {
@@ -176,6 +177,7 @@ public class MusicalWallpaperUI extends JFrame {
 
         private void generateCollages(JProgressBar progressBar) {
             progressBar.setString("Generating collages...");
+            progressBar.setValue(0);
 
             ImageCollageCreator imageCollageCreator = new ImageCollageCreator() {
                 @Override

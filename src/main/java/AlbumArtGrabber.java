@@ -18,7 +18,7 @@ public class AlbumArtGrabber extends SwingWorker<Void, Void> { // extends
 																// SwingWorker<Void,
 																// Void> {
 	final int MAX_TRACKS_FROM_PLAYLIST = 100; // spotify enforces this limit
-	static int numTracks = 0;
+	private static int numTracks = 0;
 	static String playlistName;
 	final static int[] SPOTIFY_IMAGE_SIZES = new int[] { 640, 300, 64 };
 	final private String DIRECTORY = System.getProperty("user.home") + File.separator + "Pictures" + File.separator
@@ -56,7 +56,7 @@ public class AlbumArtGrabber extends SwingWorker<Void, Void> { // extends
 			file.delete();
 		}
 		downloadAlbumsToDirectory(trackNamesAndImageURLs, DIRECTORY);
-		setProgress(40); // move the progress bar a bit
+		// setProgress(40); // move the progress bar a bit
 	}
 
 	/// Returns a HashMap mapping track names and artist
@@ -76,6 +76,7 @@ public class AlbumArtGrabber extends SwingWorker<Void, Void> { // extends
 		numTracks = playlist.getTracks().getTotal();
 		playlistName = playlist.getName();
 		int loopsRequired = numTracks / 100 + 1; // round up
+		int order = 1;
 
 		for (int i = 0; i <= loopsRequired; i++) {
 			PlaylistTracksRequest playlistTracksRequest = api.getPlaylistTracks(userID, playlistID)
@@ -86,26 +87,29 @@ public class AlbumArtGrabber extends SwingWorker<Void, Void> { // extends
 					.offset(i * MAX_TRACKS_FROM_PLAYLIST).build();
 
 			List<PlaylistTrack> tracks = playlistTracksRequest.get().getItems();
-			int order = 1;
 			for (PlaylistTrack track : tracks) {
 				SimpleAlbum album = track.getTrack().getAlbum();
 				// use IMAGE_NUMBER to select the desired resolution
-				// TODO when selecting zune mode randomly select the image size
 				int imageNum = Integer.parseInt(PropertiesManager.getProperty("imageSizeCode"));
-				if (imageNum == 3) {
+				if (imageNum > 2) {
 					imageNum = 1;
 				}
-				String url = album.getImages().get(imageNum).getUrl();
-				// albumNamesAndImages.put(album.getName(), url);
-				// TODO fix this getartist problem
-				trackNamesAndImages.put(String.format("%02d", order) + ". " + track.getTrack().getName() + " by "
-						+ track.getTrack().getArtists().get(0).getName(),
-						url);
+				getURLFromAPI(trackNamesAndImages, order, track, album, imageNum, "");
 				order++;
 			}
 		}
 
 		return trackNamesAndImages;
+
+	}
+
+	private void getURLFromAPI(HashMap<String, String> trackNamesAndImages, int order, PlaylistTrack track,
+			SimpleAlbum album, int imageNum, String suffix) {
+		String url = album.getImages().get(imageNum).getUrl();
+		// albumNamesAndImages.put(album.getName(), url);
+		// TODO fix this getartist problem
+		trackNamesAndImages.put(String.format("%02d", order) + ". " + track.getTrack().getName() + AlbumCover.SEPARATOR
+				+ track.getTrack().getArtists().get(0).getName() + suffix, url);
 	}
 
 	private Api getAuthorisedAPI() throws IOException, WebApiException {
@@ -128,10 +132,12 @@ public class AlbumArtGrabber extends SwingWorker<Void, Void> { // extends
 
 	private void downloadAlbumsToDirectory(HashMap<String, String> trackNamesAndImages, String directory)
 			throws IOException {
+		int i = 1;
 		for (String album : trackNamesAndImages.keySet()) {
 			// create a file in the DIRECTORY, named after the track
-//			String cleanedAlbum = getCleanedFilename(album); // remove invalid
-//																// characters
+			// String cleanedAlbum = getCleanedFilename(album); // remove
+			// invalid
+			// // characters
 			String cleanedAlbum = album;
 			String path = directory + File.separator + cleanedAlbum + ".jpg";
 			File file = new File(path);
@@ -148,6 +154,9 @@ public class AlbumArtGrabber extends SwingWorker<Void, Void> { // extends
 
 			// write the downloaded image to the file
 			ImageIO.write(image, "jpg", file);
+
+			setProgress(20 + 80 / numTracks * i);
+			i++;
 		}
 	}
 
@@ -165,6 +174,6 @@ public class AlbumArtGrabber extends SwingWorker<Void, Void> { // extends
 			}
 		}
 
-        return filename.toString();
-    }
+		return filename.toString();
+	}
 }

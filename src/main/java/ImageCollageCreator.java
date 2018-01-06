@@ -1,10 +1,12 @@
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -18,16 +20,18 @@ public class ImageCollageCreator extends SwingWorker<Void, Void> {
 	private final int COLLAGE_Y = 1080;
 	private int ORDER_X = 1300;
 	private int ORDER_Y = 0;
+	private int numTracks = 0;
 
 	private final String ALLOWED_EXTENSION = ".jpg";
-	static final String sourceDir = System.getProperty("user.home") + File.separator + "Pictures"
-			+ File.separator + "Musical Wallpaper" + File.separator + "Album art";
-	static final String outputDir = System.getProperty("user.home") + File.separator + "Pictures"
-			+ File.separator + "Musical Wallpaper" + File.separator + "Collages";
+	static final String sourceDir = System.getProperty("user.home") + File.separator + "Pictures" + File.separator
+			+ "Musical Wallpaper" + File.separator + "Album art";
+	static final String outputDir = System.getProperty("user.home") + File.separator + "Pictures" + File.separator
+			+ "Musical Wallpaper" + File.separator + "Collages";
 
 	private int IMAGE_X;
 	private int IMAGE_Y;
 	private static boolean isOrderMode = false;
+	private static boolean isZuneMode = false;
 
 	protected String errorCode = null; // to avoid SwingWorkers missing
 										// exception handling
@@ -46,11 +50,19 @@ public class ImageCollageCreator extends SwingWorker<Void, Void> {
 	private void createAndSaveImages() throws IOException {
 		int imageSizeCode = Integer.parseInt(PropertiesManager.getProperty("imageSizeCode"));
 		int size = 300;
-		if (imageSizeCode < 3) {
+
+		switch (imageSizeCode) {
+		case 0:
+		case 1:
+		case 2:
 			size = AlbumArtGrabber.SPOTIFY_IMAGE_SIZES[imageSizeCode];
-		}
-		if (imageSizeCode == 3) {
+			break;
+		case 3:
 			isOrderMode = true;
+			break;
+		case 4:
+			isZuneMode = true;
+			break;
 		}
 		IMAGE_X = size;
 		IMAGE_Y = size;
@@ -61,24 +73,27 @@ public class ImageCollageCreator extends SwingWorker<Void, Void> {
 		ArrayList<String> allImages = getImageFilenames(sourceDir);
 
 		int count = 0;
+		numTracks = allImages.size();
 
 		if (isOrderMode == true) {
-			int numTracks = AlbumArtGrabber.numTracks;
-			String[] thisCollageImages = new String[numTracks];
 			ORDER_Y = numTracks * 300;
 
+			// make the playlist a countdown
 			Collections.reverse(allImages);
-			//make the playlist a countdown
 
-			for (count = 0; count < numTracks; count++) {
-				thisCollageImages[count] = allImages.get(0);
-				allImages.remove(0);
-
-				setProgress(50 + 50 * (count / numTracks));
-			}
+			String[] thisCollageImages = getCollageImagesNames(allImages, numTracks);
 
 			File outputFile = getOutputFilename(outputDir);
 			BufferedImage image = drawOrder(thisCollageImages);
+			createAndSaveCollage(image, outputFile);
+
+		} else if (isZuneMode == true) {
+			// TODO implement
+			Collections.shuffle(allImages);
+			String[] thisCollageImages = getCollageImagesNames(allImages, numTracks);
+
+			File outputFile = getOutputFilename(outputDir);
+			BufferedImage image = drawZune(thisCollageImages);
 			createAndSaveCollage(image, outputFile);
 
 		} else {
@@ -98,7 +113,8 @@ public class ImageCollageCreator extends SwingWorker<Void, Void> {
 				String[] thisCollageImages = new String[imagesPerCollage];
 				for (int i = 0; i < imagesPerCollage; i++) {
 					thisCollageImages[i] = unusedImagesNames.get(0);
-					unusedImagesNames.remove(0); // as we use each image, remove
+					unusedImagesNames.remove(0); // as we use each image,
+													// remove
 													// it
 					// from the unused list
 				}
@@ -108,7 +124,7 @@ public class ImageCollageCreator extends SwingWorker<Void, Void> {
 				BufferedImage image = drawImages(thisCollageImages);
 				createAndSaveCollage(image, outputFile);
 
-				setProgress(50 + (int) (((double) count / approxRequiredIterations) * 50));
+				setProgress((int) (((double) count / approxRequiredIterations) * 100));
 			}
 
 			// if are some leftover images (ie unusedImages.size() %
@@ -135,12 +151,63 @@ public class ImageCollageCreator extends SwingWorker<Void, Void> {
 		}
 	}
 
+	private String[] getCollageImagesNames(ArrayList<String> allImages, int numTracks) {
+		String[] thisCollageImages = new String[numTracks];
+		for (int count = 0; count < numTracks; count++) {
+			thisCollageImages[count] = allImages.get(0);
+			allImages.remove(0);
+
+			setProgress(50 * (count / numTracks));
+		}
+		return thisCollageImages;
+	}
+
+	private BufferedImage drawZune(String[] thisCollageImages) {
+		BufferedImage result = new BufferedImage(ORDER_X, ORDER_Y, BufferedImage.TYPE_INT_RGB);
+		Graphics g = result.getGraphics();
+
+		int rows = (int) Math.floor(COLLAGE_X / IMAGE_X) + 1;
+		int colomns = (int) Math.floor(COLLAGE_Y / IMAGE_Y) + 1;
+
+		boolean[][] layout = new boolean[rows][colomns];
+		// generate a table to pre distribute the layout of the wallpapaer
+
+		// initialize the array
+		for (boolean row[] : layout)
+			Arrays.fill(row, true); // true for available
+
+		// generate random layout
+		for (int i = 0; i < rows; i++) {
+			for (int j = 0; j < colomns; j++) {
+				int randomNum = (int) (Math.random() * 20);
+				if (randomNum < 16) {// distribute the grid to a minimum size
+										// cover
+					if(layout[rows][colomns]) {
+						layout[rows][colomns] = false;
+						
+					}
+				} else if (randomNum < 19) {// to a medium size cover
+
+				} else {// to the maximum size cover
+
+				}
+			}
+		}
+
+		// AffineTransform scaleTransformation =
+		// AffineTransform.getScaleInstance(xFactor, yFactor);
+		// g.draw(theImage, scaleTransformation, null);
+
+		return result;
+	}
+
 	private BufferedImage drawOrder(String[] inputImages) throws IOException {
 		BufferedImage result = new BufferedImage(ORDER_X, ORDER_Y, BufferedImage.TYPE_INT_RGB);
 		Graphics g = result.getGraphics();
 
 		int x = 0;
 		int y = 0;
+		int i = 0;
 		for (String image : inputImages) {
 			// BufferedImage bufferedImage = ImageIO.read(new File(image));
 			AlbumCover cover = new AlbumCover(image);
@@ -154,12 +221,13 @@ public class ImageCollageCreator extends SwingWorker<Void, Void> {
 
 			x = 0;
 			y += IMAGE_Y;
+			setProgress(50 + i * (50 / numTracks));
 		}
 
 		return result;
 	}
 
-	//delete all the images in the 'collages 'directory 
+	// delete all the images in the 'collages 'directory
 	private void delPrevCollgs() {
 		new File(outputDir).mkdirs(); // create the folders if they don't exist
 		for (File file : new File(outputDir).listFiles()) {
