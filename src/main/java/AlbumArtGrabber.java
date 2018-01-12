@@ -49,7 +49,7 @@ public class AlbumArtGrabber extends SwingWorker<Void, Void> { // extends
 		String userID = IDs[1];
 		HashMap<String, String> trackNamesAndImageURLs = getAlbumImagesInPlaylist(playlistID, userID, api);
 		setProgress(20); // move the progress bar a bit
-
+		
 		// clear any previously downloaded album art
 		new File(DIRECTORY).mkdirs(); // make sure the DIRECTORY exists
 		for (File file : new File(DIRECTORY).listFiles()) {
@@ -96,6 +96,8 @@ public class AlbumArtGrabber extends SwingWorker<Void, Void> { // extends
 				}
 				getURLFromAPI(trackNamesAndImages, order, track, album, imageNum, "");
 				order++;
+
+				setProgress((int) 20 * order / numTracks);
 			}
 		}
 
