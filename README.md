@@ -1,3 +1,4 @@
+
 # Musical Wallpaper
 Turn your favourite albums on Spotify into your new favourite desktop wallpaper
 
@@ -14,6 +15,7 @@ The first release only works on Windows 10.
 - Provide more custom option, such as wallpaper size
 - Add gradient layout over picture of Zune Mode
 - Support more source: Youtube, 163 Music
+- A preview before generate
 
 ![Screenshot](https://i.imgur.com/S5j3tlq.jpg)
 
