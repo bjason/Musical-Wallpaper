@@ -49,12 +49,12 @@ public class MusicalWallpaperUI extends JFrame {
                 initialURL = PropertiesManager.getProperty("playlistURL");
                 // use a playlist from spotify if this is the user's first time
                 if (initialURL == null || initialURL.equals("")) {
-                    initialURL = "https://open.spotify.com/user/playlistmeukfeatured/playlist/0F2RaOrNectaIorC71tBQJ";
+					initialURL = "https://open.spotify.com/user/playlistmeukfeatured/playlist/0F2RaOrNectaIorC71tBQJ";
                 }
             } catch(IOException e) {
                 showErrorMessage(e.getMessage());
-            }
-            JTextField textField = new JTextField(initialURL);
+            } 
+            final JTextField textField = new JTextField(initialURL);
             add(textField);
 
             JButton button = new JButton("Go");
@@ -83,13 +83,17 @@ public class MusicalWallpaperUI extends JFrame {
 
     private class ArtworkSizePanel extends JPanel {
         ArtworkSizePanel() {
+			//GUI
             setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
             add(new JLabel("How many album covers per wallpaper?"));
 
-            Hashtable labelTable = new Hashtable();
+            Hashtable<Integer, JLabel> labelTable = new Hashtable<Integer, JLabel>();
             labelTable.put(new Integer(0), new JLabel("Few"));
             labelTable.put(new Integer(1), new JLabel("Some"));
             labelTable.put(new Integer(2), new JLabel("Many"));
+            labelTable.put(new Integer(3), new JLabel("Rank Mode"));
+            labelTable.put(new Integer(4), new JLabel("Zune Mode"));
+            //TODO zune mode change picture size
 
             int initialValue = 0; // default in case of error
             try {
@@ -98,7 +102,7 @@ public class MusicalWallpaperUI extends JFrame {
                 showErrorMessage("Could not load user preferences. " + e.getMessage());
             }
 
-            JSlider slider = new JSlider(0, 2, initialValue);
+            final JSlider slider = new JSlider(0, 4, initialValue);
             slider.setLabelTable(labelTable);
             slider.setPaintLabels(true);
             slider.setPaintTicks(true);
@@ -141,7 +145,7 @@ public class MusicalWallpaperUI extends JFrame {
 
         private void beginLoading() {
             progressBar.setString("Downloading album art...");
-            AlbumArtGrabber albumArtGrabber = new AlbumArtGrabber() {
+            AlbumArtGrabber albumArtGrabber = new AlbumArtGrabber() {            	
                 @Override
                 protected void done() {
                     // when the album art grabber is done, generate the collages and display that progress
@@ -158,7 +162,7 @@ public class MusicalWallpaperUI extends JFrame {
             setupProgressBarChanging(albumArtGrabber);
         }
 
-        private void setupProgressBarChanging(SwingWorker task) {
+        private void setupProgressBarChanging(final SwingWorker task) {
             task.execute();
 
             task.addPropertyChangeListener(new PropertyChangeListener() {
@@ -173,6 +177,7 @@ public class MusicalWallpaperUI extends JFrame {
 
         private void generateCollages(JProgressBar progressBar) {
             progressBar.setString("Generating collages...");
+            progressBar.setValue(0);
 
             ImageCollageCreator imageCollageCreator = new ImageCollageCreator() {
                 @Override
@@ -232,7 +237,7 @@ public class MusicalWallpaperUI extends JFrame {
         swapPanel(panelPosition - 1);
     }
 
-    private void swapPanel(int newPanelPosition) {
+    private void swapPanel(final int newPanelPosition) {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
