@@ -11,9 +11,9 @@ The first release only works on Windows 10.
 
 # Future possibilities
 - Improve look and feel of interface
-- Provide suggestions for popular Spotify playlists and famous album covers
-- Programatically update the wallpaper
-- Cron job to check for updates to playlist and update wallpapers
+- Provide more custom option, such as wallpaper size
+- Add gradient layout over picture of Zune Mode
+- Support more source: Youtube, 163 Music
 
 ![Screenshot](https://i.imgur.com/S5j3tlq.jpg)
 
