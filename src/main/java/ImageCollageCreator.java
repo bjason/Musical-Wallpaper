@@ -67,7 +67,7 @@ public class ImageCollageCreator extends SwingWorker<Void, Void> {
 			break;
 		case 4:
 			isZuneMode = true;
-			BASE_SIZE = (size - 6 * INTERVAL) / 4;
+			BASE_SIZE = (300 - 6 * INTERVAL) / 4;
 			break;
 		}
 		IMAGE_X = size;
