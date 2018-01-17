@@ -4,8 +4,8 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -15,61 +15,70 @@ import java.io.IOException;
 import java.util.Hashtable;
 
 /// User interface for application
-public class MusicalWallpaperUI extends JFrame {
-	private static Font defaultFont = new Font("Segoe UI", Font.PLAIN, 18); //default font
-	
+public class VisualizorUI extends JFrame {
+	private static Font defaultFont = new Font("Segoe UI", Font.PLAIN, 18); // default
+																			// font
+
 	private JPanel[] panels;
 	private int panelPosition = 0;
 
 	public void setup() {
 		setDefaultLookAndFeelDecorated(true);
-		
-		setSize(400, 300);
+
+		//setSize(400, 300);
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-		setTitle("Musical Wallpaper");
+		setTitle("Spotify Playlist Visulizor");
 
 		setVisible(true);
 		setResizable(false);
 		setLocationRelativeTo(null);
-		
+
 		UIManager.put("Button.font", defaultFont);
 		UIManager.put("Label.font", defaultFont);
 		UIManager.put("ComboBox.font", defaultFont);
 		UIManager.put("TextField.font", defaultFont);
 		UIManager.put("Slider.font", defaultFont);
 		UIManager.put("ProgressBar.font", defaultFont);
-		
-		
-		panels = new JPanel[] { new SelectPlaylistPanel(), new ArtworkSizePanel(),
-			new LoadingScreenPanel(), new WallpaperSetPanel() };
+
+		panels = new JPanel[] { new SelectPlaylistPanel(), new ArtworkSizePanel(), new LoadingScreenPanel(),
+				new WallpaperSetPanel() };
 		setupPanels(); // add empty borders to all panels
 
 		// display the first panel
 		add(panels[panelPosition]);
-		
+
 		pack();
 	}
 
 	private class SelectPlaylistPanel extends JPanel {
 		@SuppressWarnings("unchecked")
 		SelectPlaylistPanel() {
-			//setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-			Box box = Box.createVerticalBox();
+			setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+			//Box box = createVerticalBox();
+
+			JLabel label = new JLabel("<html>Welcome to Spotify Playlist Visualizor"
+					+ "<br>Make your favourite album covers<br>into your new favourite wallpaper!"
+					+ "<br>Create or find a playlist with your"
+					+ "<br>favourite albums then paste the<br>link below with Ctrl-V</html>");
+			label.setAlignmentX(Component.LEFT_ALIGNMENT);
+			add(label);
+			add(Box.createVerticalStrut(20));
 			
-			box.add(new JLabel("<html>Welcome to Musical Wallpaper"
-					+ "<br>Make your favourite album covers into your new favourite wallpaper!"
-					+ "<br>Create or find a playlist with your favourite albums then paste the link below with Ctrl-V"));
-			box.add(new JLabel("Choose your playlist source:"));
-			box.add(Box.createVerticalStrut(10));
-			
+			JLabel label2 = new JLabel("Choose your playlist source:");
+			label2.setAlignmentX(Component.LEFT_ALIGNMENT);
+			add(label2);
+			add(Box.createVerticalStrut(20));
+
 			JComboBox jComboBox = new JComboBox<>();
+			jComboBox.setAlignmentX(Component.LEFT_ALIGNMENT);
 			jComboBox.addItem("Spotify");
 			jComboBox.addItem("163 Music");
 			jComboBox.addItem("Youtube");
-			
-			jComboBox.setPreferredSize(new Dimension(50, 30));
-			box.add(jComboBox);
-			box.add(Box.createVerticalStrut(10));
+
+			jComboBox.setPreferredSize(new Dimension(300, 30));
+			add(jComboBox);
+		
+			add(Box.createVerticalStrut(10));
 
 			String initialURL = "";
 			try {
@@ -82,12 +91,18 @@ public class MusicalWallpaperUI extends JFrame {
 				showErrorMessage(e.getMessage());
 			}
 			final JTextField textField = new JTextField(initialURL);
+			textField.setAlignmentX(Component.LEFT_ALIGNMENT);
+			
 			textField.setCaretPosition(0);
-			textField.setPreferredSize(new Dimension(50, 30));
-			box.add(textField);
-			box.add(Box.createVerticalStrut(10));
+			textField.setPreferredSize(new Dimension(300, 30));
+			//textField.setMaximumSize(new Dimension(300, 30));
+			add(textField);
+			
+			add(Box.createVerticalStrut(20));
 
 			JButton button = new JButton("Go");
+			button.setAlignmentX(Component.LEFT_ALIGNMENT);
+			
 			button.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -108,9 +123,9 @@ public class MusicalWallpaperUI extends JFrame {
 					}
 				}
 			});
-			box.add(button);
-			
-			this.add(box, BorderLayout.WEST);
+			add(button);
+
+			//this.add(box, BorderLayout.EAST);
 		}
 	}
 
@@ -119,14 +134,13 @@ public class MusicalWallpaperUI extends JFrame {
 			// GUI
 			setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 			add(new JLabel("How many album covers per wallpaper?"));
-			
+
 			Hashtable<Integer, JLabel> labelTable = new Hashtable<Integer, JLabel>();
 			labelTable.put(new Integer(0), new JLabel("Few"));
 			labelTable.put(new Integer(1), new JLabel("Some"));
 			labelTable.put(new Integer(2), new JLabel("Many"));
 			labelTable.put(new Integer(3), new JLabel("<html>Rank<br>Mode</html>"));
 			labelTable.put(new Integer(4), new JLabel("<html>Zune<br>Mode</html>"));
-			
 
 			int initialValue = 0; // default in case of error
 			try {
@@ -172,6 +186,7 @@ public class MusicalWallpaperUI extends JFrame {
 		LoadingScreenPanel() {
 			setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 			progressBar = new JProgressBar(0, 100);
+			progressBar.setPreferredSize(new Dimension(300, 100));
 			progressBar.setValue(0);
 			add(progressBar);
 			progressBar.setStringPainted(true);
@@ -237,7 +252,7 @@ public class MusicalWallpaperUI extends JFrame {
 			setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 			add(new JLabel("<html>Your collages are ready!" + "<br>Now you just need to set them as your wallpaper"
 					+ "<br>Click the button below, then:" + "<br>1. Set 'background' to 'slideshow'"
-					+ "<br>2. Click 'browse', go to 'Musical Wallpaper'"
+					+ "<br>2. Click 'browse', go to 'Spotify Playlist Visualizor'"
 					+ "<br>3. Click on 'Collages' then click 'Choose folder'"
 					+ "<br>And enjoy your favourite music, now your favourite wallpaper!"));
 			JButton settingsButton = new JButton("Open wallpaper settings");
@@ -296,7 +311,7 @@ public class MusicalWallpaperUI extends JFrame {
 	public static void main(String[] args) {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				MusicalWallpaperUI musicalWallpaperUI = new MusicalWallpaperUI();
+				VisualizorUI musicalWallpaperUI = new VisualizorUI();
 				musicalWallpaperUI.setup();
 			}
 		});

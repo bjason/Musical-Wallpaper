@@ -22,7 +22,7 @@ public class AlbumArtGrabber extends SwingWorker<Void, Void> { // extends
 	static String playlistName;
 	final static int[] SPOTIFY_IMAGE_SIZES = new int[] { 640, 300, 64 };
 	final private String DIRECTORY = System.getProperty("user.home") + File.separator + "Pictures" + File.separator
-			+ "Musical Wallpaper" + File.separator + "Album art";
+			+ "Spotify Playlist Visualizor" + File.separator + "Album art";
 
 	protected String errorCode = null; // only non-null if an exception was
 										// encountered downloading album art
@@ -109,7 +109,7 @@ public class AlbumArtGrabber extends SwingWorker<Void, Void> { // extends
 		String url = album.getImages().get(imageNum).getUrl();
 		// albumNamesAndImages.put(album.getName(), url);
 		// TODO fix this getartist problem
-		trackNamesAndImages.put(String.format("%02d", order) + ". " + track.getTrack().getName() + AlbumCover.SEPARATOR
+		trackNamesAndImages.put(String.format("%02d", order) + ". " + track.getTrack().getName() + AlbumCover.ARTIST_SEPARATOR
 				+ track.getTrack().getArtists().get(0).getName() + suffix, url);
 	}
 
@@ -161,6 +161,7 @@ public class AlbumArtGrabber extends SwingWorker<Void, Void> { // extends
 		}
 	}
 
+	@SuppressWarnings("unused")
 	private String getCleanedFilename(String oldFilename) {
 		StringBuilder filename = new StringBuilder();
 

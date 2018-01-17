@@ -17,15 +17,15 @@ import java.util.Map;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
+@SuppressWarnings("unused")
 public class AlbumCover {
 	private BufferedImage image;
 	private String name;
-	private String trackName;
 	private String artistName;
 	final static int IMAGE_X = 300;
 	final static int IMAGE_Y = 300;
 	final static int DETAIL_X = 1000;
-	final static String SEPARATOR = " byArtist ";
+	final static String ARTIST_SEPARATOR = " byArtist ";
 
 	public AlbumCover(BufferedImage image, String name) {
 		this.image = image;
@@ -50,13 +50,50 @@ public class AlbumCover {
 
 	// split name
 	public String getArtistName() {
-		String str = name.split(SEPARATOR)[1];
+		String str = name.split(ARTIST_SEPARATOR)[1];
 		artistName = str.substring(0, str.lastIndexOf('.'));
 		return artistName;
 	}
 
+	public BufferedImage getImage(String dir) throws IOException {
+		BufferedImage bufferedImage = ImageIO.read(new File(dir));
+		return bufferedImage;
+	}
+
+	public BufferedImage createDetailSection() {
+		BufferedImage section = new BufferedImage(DETAIL_X, IMAGE_Y, BufferedImage.TYPE_INT_RGB);
+		Graphics2D background = section.createGraphics();
+		//
+		// background.setBackground(Color.WHITE);
+
+		// //TODO background.setColor(getMainColor());
+		background.setColor(Color.WHITE);
+		background.fillRect(0, 0, DETAIL_X, IMAGE_Y);
+		background.dispose();
+
+		// draw text on the image
+		// draw rank and name
+		background = section.createGraphics();
+		background.setColor(Color.GRAY);
+		background.setFont(new Font("Constantia", Font.BOLD, 150));
+		String[] str = getRankandTrackName();
+		background.drawString(str[0], 10, 100);
+
+		background.setColor(Color.BLACK);
+		background.setFont(new Font("Constantia", Font.BOLD, 70));
+		background.drawString(str[1], 10, 170);
+
+		// artist name
+		background.setColor(Color.BLACK);
+		background.setFont(new Font("Constantia", Font.ITALIC, 40));
+		background.drawString(getArtistName(), 30, 220);
+
+		background.dispose();
+		return section;
+	}
+
 	public String[] getRankandTrackName() {
-		String str = name.split(" by ")[0];
+		String str = name.split(ARTIST_SEPARATOR)[0];
 		String rankAndTrackName[] = new String[2];
 
 		rankAndTrackName[0] = str.substring(0, str.indexOf('.')); // rank
@@ -66,11 +103,6 @@ public class AlbumCover {
 			rankAndTrackName[1] = str.substring(i + 1); // track name
 		}
 		return rankAndTrackName;
-	}
-
-	public BufferedImage getImage(String dir) throws IOException {
-		BufferedImage bufferedImage = ImageIO.read(new File(dir));
-		return bufferedImage;
 	}
 
 	// private Color getMainColor() {
@@ -127,38 +159,6 @@ public class AlbumCover {
 				return false;
 			}
 		return true;
-	}
-
-	public BufferedImage createDetailSection() {
-		BufferedImage section = new BufferedImage(DETAIL_X, IMAGE_Y, BufferedImage.TYPE_INT_RGB);
-		Graphics2D background = section.createGraphics();
-		//
-		// background.setBackground(Color.WHITE);
-
-		// //TODO background.setColor(getMainColor());
-		background.setColor(Color.WHITE);
-		background.fillRect(0, 0, DETAIL_X, IMAGE_Y);
-		background.dispose();
-
-		// draw text on the image
-		// draw rank and name
-		background = section.createGraphics();
-		background.setColor(Color.GRAY);
-		background.setFont(new Font("Constantia", Font.BOLD, 150));
-		String[] str = getRankandTrackName();
-		background.drawString(str[0], 10, 100);
-
-		background.setColor(Color.BLACK);
-		background.setFont(new Font("Constantia", Font.BOLD, 70));
-		background.drawString(str[1], 10, 170);
-
-		// artist name
-		background.setColor(Color.BLACK);
-		background.setFont(new Font("Constantia", Font.ITALIC, 40));
-		background.drawString(getArtistName(), 30, 220);
-
-		background.dispose();
-		return section;
 	}
 
 	// use it as

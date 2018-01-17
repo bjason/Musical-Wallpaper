@@ -21,20 +21,16 @@ public class ImageCollageCreator extends SwingWorker<Void, Void> {
 	private final int COLLAGE_X = 1920; // TODO calculate these properly, based
 										// on screen res
 	private final int COLLAGE_Y = 1080;
-	private int ORDER_X = 1300;
-	private int ORDER_Y = 0;
 	private int numTracks = 0;
 
 	private final String ALLOWED_EXTENSION = ".jpg";
 	static final String sourceDir = System.getProperty("user.home") + File.separator + "Pictures" + File.separator
-			+ "Musical Wallpaper" + File.separator + "Album art";
+			+ "Spotify Playlist Visualizor" + File.separator + "Album art";
 	static final String outputDir = System.getProperty("user.home") + File.separator + "Pictures" + File.separator
-			+ "Musical Wallpaper" + File.separator + "Collages";
+			+ "Spotify Playlist Visualizor" + File.separator + "Collages";
 
 	private int IMAGE_X;
 	private int IMAGE_Y;
-	private int INTERVAL = 2;
-	private int BASE_SIZE;
 	private static boolean isOrderMode = false;
 	private static boolean isZuneMode = false;
 
@@ -55,6 +51,7 @@ public class ImageCollageCreator extends SwingWorker<Void, Void> {
 	private void createAndSaveImages() throws IOException {
 		int imageSizeCode = Integer.parseInt(PropertiesManager.getProperty("imageSizeCode"));
 		int size = 300;
+		int baseSize = 0;
 
 		switch (imageSizeCode) {
 		case 0:
@@ -67,7 +64,7 @@ public class ImageCollageCreator extends SwingWorker<Void, Void> {
 			break;
 		case 4:
 			isZuneMode = true;
-			BASE_SIZE = (size - 6 * INTERVAL) / 4;
+			baseSize = (size - 6 * ZuneCollage.INTERVAL) / 4;
 			break;
 		}
 		IMAGE_X = size;
@@ -80,34 +77,34 @@ public class ImageCollageCreator extends SwingWorker<Void, Void> {
 
 		int count = 0;
 		numTracks = allImages.size();
+		Collage collage = null;
+		String[] thisCollageImages = null;
+		File outputFile = null;
 
 		if (isOrderMode == true) {
-			ORDER_Y = numTracks * 300;
-
 			// make the playlist a countdown
 			Collections.reverse(allImages);
 
-			String[] thisCollageImages = getCollageImagesNames(allImages, numTracks);
+			thisCollageImages = getCollageImagesNames(allImages, numTracks);
+			collage = new RankingCollage(numTracks * size, this);
+			collage.setImageSize(IMAGE_X, IMAGE_Y);
 
-			File outputFile = getOutputFilename(outputDir);
-			BufferedImage image = drawRank(thisCollageImages);
-			createAndSaveCollage(image, outputFile);
+			outputFile = getOutputFilename(outputDir);
 
 		} else if (isZuneMode == true) {
+
 			Collections.shuffle(allImages);
-			String[] thisCollageImages = getCollageImagesNames(allImages, numTracks);
 
-			File outputFile = getOutputFilename(outputDir);
-			BufferedImage image = drawZune(thisCollageImages);
-			// BufferedImage imageWithGradient = addGradient(image);
-			createAndSaveCollage(image, outputFile);
+			thisCollageImages = getCollageImagesNames(allImages, numTracks);
+			collage = new ZuneCollage(baseSize, baseSize, this);
 
+			outputFile = getOutputFilename(outputDir);
 		} else {
 			ArrayList<String> unusedImagesNames = new ArrayList<>(allImages);
-
 			Collections.shuffle(allImages); // randomize order of images in
 											// collages
 			int imagesPerCollage = getImagesPerCollage();
+			thisCollageImages = new String[imagesPerCollage];
 
 			// roughly calculate progress for the loading bar
 			int approxRequiredIterations = unusedImagesNames.size() / imagesPerCollage;
@@ -116,7 +113,7 @@ public class ImageCollageCreator extends SwingWorker<Void, Void> {
 				count++;
 				// grab the next imagesPerCollage images from the shuffled
 				// unused images
-				String[] thisCollageImages = new String[imagesPerCollage];
+
 				for (int i = 0; i < imagesPerCollage; i++) {
 					thisCollageImages[i] = unusedImagesNames.get(0);
 					unusedImagesNames.remove(0); // as we use each image,
@@ -126,9 +123,12 @@ public class ImageCollageCreator extends SwingWorker<Void, Void> {
 				}
 
 				// generate a unique filename for each, just "collage x.jpg"
-				File outputFile = getOutputFilename(outputDir, count);
-				BufferedImage image = drawImages(thisCollageImages);
-				createAndSaveCollage(image, outputFile);
+				outputFile = getOutputFilename(outputDir, count);
+
+				collage = new Collage(IMAGE_X, IMAGE_Y, this);
+
+				collage.drawImages(thisCollageImages);
+				collage.createAndSaveCollage(outputFile);
 
 				setProgress((int) (((double) count / approxRequiredIterations) * 100));
 			}
@@ -137,67 +137,28 @@ public class ImageCollageCreator extends SwingWorker<Void, Void> {
 			// imagesPerCollage != 0)
 			// then use of the already used images to fill this collage
 			if (unusedImagesNames.size() > 0) {
+				collage = new Collage(IMAGE_X, IMAGE_Y, this);
+
 				count++;
 				// start by using all remaining unused images
-				ArrayList<String> thisCollageImages = new ArrayList<>(unusedImagesNames);
+				ArrayList<String> lastCollageImages = new ArrayList<>(unusedImagesNames);
 				// then top up with any other images
-				while (thisCollageImages.size() < imagesPerCollage) {
-					int imagesToAdd = imagesPerCollage - thisCollageImages.size();
+				while (lastCollageImages.size() < imagesPerCollage) {
+					int imagesToAdd = imagesPerCollage - lastCollageImages.size();
 					if (imagesToAdd > allImages.size()) {
 						imagesToAdd = allImages.size();
 					}
-					thisCollageImages.addAll(allImages.subList(0, imagesToAdd));
+					lastCollageImages.addAll(allImages.subList(0, imagesToAdd));
 					Collections.shuffle(allImages);
 				}
 
-				File outputFile = getOutputFilename(outputDir, count);
-				BufferedImage image = drawImages(thisCollageImages.toArray(new String[0]));
-				createAndSaveCollage(image, outputFile);
+				outputFile = getOutputFilename(outputDir, count);
+				thisCollageImages = lastCollageImages.toArray(new String[0]);
 			}
 		}
-	}
 
-	private BufferedImage addGradient(BufferedImage image) {
-		BufferedImage combinedImage = new BufferedImage(COLLAGE_X, COLLAGE_Y, BufferedImage.TYPE_INT_ARGB);
-		Graphics2D g = combinedImage.createGraphics();
-
-		// generate a gradient and set the transparency
-		int orientation = (int) (Math.random() * 30 + 30);
-		BufferedImage gradient = createGradientMask();
-
-		// draw this gradient over the origin image
-		g.drawImage(image, 0, 0, null);
-
-		float opacity = 0.5f;
-		g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity));
-		g.drawImage(gradient, 0, 0, null);
-
-		g.dispose();
-
-		return combinedImage;
-	}
-
-	public BufferedImage createGradientMask() {
-		// algorithm derived from Romain Guy's blog
-		int width = COLLAGE_X;
-		int height = COLLAGE_Y;
-		BufferedImage gradient = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-		Graphics2D g = gradient.createGraphics();
-
-		int transparency = (int) (0.8 * 255);
-
-		GradientPaint paint = new GradientPaint(0.0f, 0.0f, new Color(66, 27, 82, transparency),
-				// orientation == SwingConstants.HORIZONTAL ? width : 0.0f,
-				// orientation == SwingConstants.VERTICAL ? height : 0.0f,
-				width, height, new Color(1, 66, 34, transparency));
-
-		g.setPaint(paint);
-		g.fill(new Rectangle2D.Double(0, 0, width, height));
-
-		g.dispose();
-		gradient.flush();
-
-		return gradient;
+		collage.drawImages(thisCollageImages);
+		collage.createAndSaveCollage(outputFile);
 	}
 
 	private String[] getCollageImagesNames(ArrayList<String> allImages, int numTracks) {
@@ -209,167 +170,6 @@ public class ImageCollageCreator extends SwingWorker<Void, Void> {
 			setProgress(50 * (count / numTracks));
 		}
 		return thisCollageImages;
-	}
-
-	private BufferedImage drawZune(String[] thisCollageImages) throws IOException {
-		BufferedImage result = new BufferedImage(COLLAGE_X, COLLAGE_Y, BufferedImage.TYPE_INT_RGB);
-		Graphics g = result.getGraphics();
-
-		// the biggest size of the album cover is 300, and the scale is 4:3:1
-		// generate a layout array that indicates the layout of the wallpaper
-		// one grid equals the minimum size of the album cover which is 300/4,
-		// and the medium size pictures take up 9 grids, the biggest take up 16
-		int colomns = (int) Math.floor(COLLAGE_X / BASE_SIZE) + 1;
-		int rows = (int) Math.floor(COLLAGE_Y / BASE_SIZE) + 1;
-		// int total = rows * colomns;
-
-		int[][] layout = new int[rows][colomns];
-		// generate a table to pre distribute the layout of the wallpapaer
-		boolean[] usedAsLarge = new boolean[thisCollageImages.length];
-
-		// initialize the array
-		for (int row[] : layout)
-			Arrays.fill(row, -1); // -1 for available
-		for (boolean b : usedAsLarge) {
-			b = false;
-		}
-
-		// generate random layout
-		for (int x = 0; x < rows; x++) {
-			for (int y = 0; y < colomns; y++) {
-				int randomNum = (int) (Math.random() * 20);
-				int order = (int) (Math.random() * thisCollageImages.length);
-
-				if (randomNum > 18 && notBeenAssigned(layout, x, y, rows, colomns, 4)) {
-					while (usedAsLarge[order]) {
-						order = (order + 1) % thisCollageImages.length;
-					}
-					usedAsLarge[order] = true;
-					for (int k = 0; k < 4; k++) {
-						for (int m = 0; m < 4; m++) {
-							layout[Math.min(x + k, rows - 1)][Math.min(y + m, colomns - 1)] = order;
-						}
-					}
-
-					scaleAndDraw(thisCollageImages[order], g, x, y, 4);
-
-				} else if (randomNum > 16 && notBeenAssigned(layout, x, y, rows, colomns, 3)) {
-					// to a medium size cover
-					// identify the layout
-					while (usedAsLarge[order]) {
-						order = (order + 1) % thisCollageImages.length;
-					}
-					usedAsLarge[order] = true;
-					for (int k = 0; k < 3; k++) {
-						for (int m = 0; m < 3; m++) {
-							layout[Math.min(x + k, rows - 1)][Math.min(y + m, colomns - 1)] = order;
-						}
-					}
-
-					scaleAndDraw(thisCollageImages[order], g, x, y, 3);
-
-				} else {// distribute the grid to a minimum size cover
-					if (layout[x][y] == -1) {
-						
-						while (hasSameCover(colomns, rows, layout, x, y, order)) {
-							order = (order + 1) % thisCollageImages.length;
-						}
-						layout[x][y] = order;
-
-						scaleAndDraw(thisCollageImages[order], g, x, y, 1);
-					}
-				}
-
-				if (y >= colomns) {
-					y = 0;
-					x += 1;
-				}
-
-				setProgress((int) (100 * (y + x * colomns) / (rows * colomns)));
-			}
-		}
-
-		return result;
-
-	}
-
-	private boolean hasSameCover(int colomns, int rows, int[][] layout, int x, int y, int order) {
-		boolean result = false;
-		for (int i = -1; i < 2; i++) {
-			for (int j = -1; j < 2; j++) {
-				int scanx = Math.max(Math.min(x + i, rows - 1), 0);
-				int scany = Math.max(Math.min(y + j, colomns - 1), 0);
-				
-				if (layout[scanx][scany] == order) {
-					result = true;
-					break;
-				}
-			}
-		}
-		return result;
-	}
-
-	private boolean notBeenAssigned(int[][] layout, int x, int y, int rows, int colomns, int finite) {
-		boolean usable = true;
-		for (int k = 0; k < finite; k++) {
-			for (int m = 0; m < finite; m++) {
-				if (layout[Math.min(x + k, rows - 1)][Math.min(y + m, colomns - 1)] != -1) {
-					usable = false;
-					break;
-				}
-			}
-		}
-		return usable;
-	}
-
-	private void scaleAndDraw(String image, Graphics g, int y, int x, int scale) throws IOException {
-		int size = scale * BASE_SIZE + (scale - 1) * 2 * INTERVAL;
-		int pixel_x = x * (BASE_SIZE + 2 * INTERVAL) - 20;
-		int pixel_y = y * (BASE_SIZE + 2 * INTERVAL) - 20;
-		AlbumCover cover = new AlbumCover(image);
-		g.drawImage(cover.scaleImage(size, size), pixel_x, pixel_y, null);
-	}
-
-	private BufferedImage drawRank(String[] inputImages) throws IOException {
-		BufferedImage result = new BufferedImage(ORDER_X, ORDER_Y, BufferedImage.TYPE_INT_RGB);
-		Graphics g = result.getGraphics();
-
-		int x = 0;
-		int y = 0;
-		int i = 0;
-		for (String image : inputImages) {
-			// BufferedImage bufferedImage = ImageIO.read(new File(image));
-			AlbumCover cover = new AlbumCover(image);
-			BufferedImage bufferedImage = cover.getImage();
-
-			g.drawImage(bufferedImage, x, y, null);
-			x += IMAGE_X;
-
-			// draw detail section bar
-			g.drawImage(cover.createDetailSection(), x, y, null);
-
-			x = 0;
-			y += IMAGE_Y;
-			setProgress(50 + i * (50 / numTracks));
-		}
-
-		return result;
-	}
-
-	// delete all the images in the 'collages 'directory
-	private void delPrevCollgs() {
-		new File(outputDir).mkdirs(); // create the folders if they don't exist
-		for (File file : new File(outputDir).listFiles()) {
-			file.delete();
-		}
-	}
-
-	private int getImagesPerCollage() {
-		// calculate how many images can be fit in horizontally and vertically
-		// round up so that there is no empty space at the edge of the wallpaper
-		int x = (int) Math.ceil((double) COLLAGE_X / IMAGE_X);
-		int y = (int) Math.ceil((double) COLLAGE_Y / IMAGE_Y);
-		return x * y;
 	}
 
 	private File getOutputFilename(String outputDir) {
@@ -392,32 +192,27 @@ public class ImageCollageCreator extends SwingWorker<Void, Void> {
 					images.add(image.getName());
 				}
 			}
-
 			return images;
+			// only the image names
 		}
 	}
 
-	private void createAndSaveCollage(BufferedImage image, File outputFile) throws IOException {
-		outputFile.mkdirs(); // if the output directory doesn't exist, create it
-		// write the collage to the file
-		ImageIO.write(image, "jpg", outputFile);
+	private void delPrevCollgs() {
+		new File(outputDir).mkdirs(); // create the folders if they don't exist
+		for (File file : new File(outputDir).listFiles()) {
+			file.delete();
+		}
 	}
 
-	private BufferedImage drawImages(String[] inputImages) throws IOException {
-		BufferedImage result = new BufferedImage(COLLAGE_X, COLLAGE_Y, BufferedImage.TYPE_INT_RGB);
-		Graphics g = result.getGraphics();
+	public void publicSetProgress(int prog) {
+		setProgress(prog);
+	}
 
-		int x = 0;
-		int y = 0;
-		for (String image : inputImages) {
-			BufferedImage bufferedImage = ImageIO.read(new File(image));
-			g.drawImage(bufferedImage, x, y, null);
-			x += IMAGE_X;
-			if (x >= result.getWidth()) {
-				x = 0;
-				y += IMAGE_Y;
-			}
-		}
-		return result;
+	private int getImagesPerCollage() {
+		// calculate how many images can be fit in horizontally and vertically
+		// round up so that there is no empty space at the edge of the wallpaper
+		int x = (int) Math.ceil((double) COLLAGE_X / IMAGE_X);
+		int y = (int) Math.ceil((double) COLLAGE_Y / IMAGE_Y);
+		return x * y;
 	}
 }
