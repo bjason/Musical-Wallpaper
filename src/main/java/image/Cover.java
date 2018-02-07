@@ -1,3 +1,5 @@
+package image;
+
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Font;
@@ -8,6 +10,7 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.nio.Buffer;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -17,27 +20,44 @@ import java.util.Map;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
+import util.ImageCollageCreator;
+
 @SuppressWarnings("unused")
-public class AlbumCover {
+public class Cover {
 	private BufferedImage image;
 	private String name;
 	private String artistName;
-	final static int IMAGE_X = 300;
-	final static int IMAGE_Y = 300;
-	final static int DETAIL_X = 1000;
-	final static String ARTIST_SEPARATOR = " byArtist ";
+	public int IMAGE_X;
+	public int IMAGE_Y;
+	public final static int DETAIL_X = 1000;
+	public final static String ARTIST_SEPARATOR = " byArtist ";
 
-	public AlbumCover(BufferedImage image, String name) {
+	public Cover(BufferedImage image, String name) {
 		this.image = image;
 		this.name = name;
+		
+		setSize();
+	}
+	
+	public Cover(BufferedImage image) {
+		this.image = image;
+		
+		setSize();
 	}
 
-	public AlbumCover(String name) throws IOException {
+	public Cover(String name) throws IOException {
 		String dir;
 		this.name = name;
 
-		dir = ImageCollageCreator.sourceDir + File.separator + name;
+		dir = ImageCollageCreator.sourceDir + File.separator + name; 
 		this.image = getImage(dir);
+		
+		setSize();
+	}
+	
+	private void setSize() {
+		IMAGE_X = image.getWidth();
+		IMAGE_Y = image.getHeight();
 	}
 
 	public BufferedImage getImage() {
@@ -163,11 +183,12 @@ public class AlbumCover {
 
 	// use it as
 	// BufferedImage img=new AlbumCover().scaleImage(50,50,"c:/test.jpg");
-	public BufferedImage scaleImage(int WIDTH, int HEIGHT) {
-		BufferedImage bi = null;
+	public Cover resizeTo(int WIDTH, int HEIGHT) {
+		BufferedImage result = null;
+		
 		try {
-			bi = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
-			Graphics2D g2d = (Graphics2D) bi.createGraphics();
+			result = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
+			Graphics2D g2d = (Graphics2D) result.createGraphics();
 			g2d.addRenderingHints(
 					new RenderingHints(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY));
 			g2d.drawImage(image, 0, 0, WIDTH, HEIGHT, null);
@@ -175,6 +196,6 @@ public class AlbumCover {
 			e.printStackTrace();
 			return null;
 		}
-		return bi;
+		return new Cover(result, name);
 	}
 }

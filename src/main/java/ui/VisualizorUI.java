@@ -1,7 +1,22 @@
+package ui;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+
+import com.google.api.client.repackaged.com.google.common.base.Strings;
+import com.google.common.base.CaseFormat;
+import com.wrapper.spotify.exceptions.WebApiException;
+
+import grabber.Grabber;
+import grabber.NetEaseMusicGrabber;
+import grabber.SpotifyGrabber;
+import grabber.YouTubeGrabber;
+import util.ImageCollageCreator;
+import util.InvalidPlaylistURLException;
+import util.PlaylistIDManager;
+import util.PropertiesManager;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -25,7 +40,7 @@ public class VisualizorUI extends JFrame {
 	public void setup() {
 		setDefaultLookAndFeelDecorated(true);
 
-		//setSize(400, 300);
+		// setSize(400, 300);
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		setTitle("Spotify Playlist Visulizor");
 
@@ -54,7 +69,7 @@ public class VisualizorUI extends JFrame {
 		@SuppressWarnings("unchecked")
 		SelectPlaylistPanel() {
 			setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-			//Box box = createVerticalBox();
+			// Box box = createVerticalBox();
 
 			JLabel label = new JLabel("<html>Welcome to Spotify Playlist Visualizor"
 					+ "<br>Make your favourite album covers<br>into your new favourite wallpaper!"
@@ -63,69 +78,105 @@ public class VisualizorUI extends JFrame {
 			label.setAlignmentX(Component.LEFT_ALIGNMENT);
 			add(label);
 			add(Box.createVerticalStrut(20));
-			
+
 			JLabel label2 = new JLabel("Choose your playlist source:");
 			label2.setAlignmentX(Component.LEFT_ALIGNMENT);
 			add(label2);
 			add(Box.createVerticalStrut(20));
 
-			JComboBox jComboBox = new JComboBox<>();
+			// TODO add support for qmusic and kgmusic
+			final JComboBox jComboBox = new JComboBox<>();
 			jComboBox.setAlignmentX(Component.LEFT_ALIGNMENT);
 			jComboBox.addItem("Spotify");
 			jComboBox.addItem("163 Music");
 			jComboBox.addItem("Youtube");
+			jComboBox.addItem("QQ Music");
+			jComboBox.addItem("KuGou Music");
 
 			jComboBox.setPreferredSize(new Dimension(300, 30));
 			add(jComboBox);
-		
+
 			add(Box.createVerticalStrut(10));
 
 			String initialURL = "";
+			int initialPos = 0;
 			try {
-				initialURL = PropertiesManager.getProperty("playlistURL");
-				// use a playlist from spotify if this is the user's first time
-				if (initialURL == null || initialURL.equals("")) {
-					initialURL = "https://open.spotify.com/user/playlistmeukfeatured/playlist/0F2RaOrNectaIorC71tBQJ";
+				String pos = PropertiesManager.getProperty("sourceId");
+				if (pos != null) {
+					initialPos = Integer.parseInt(pos);
 				}
+				jComboBox.setSelectedIndex(initialPos);
+				int selectedItem = jComboBox.getSelectedIndex();
+
+				// use a playlist from spotify if this is the user's first time
+				initialURL = setUrl(initialPos, selectedItem);
 			} catch (IOException e) {
 				showErrorMessage(e.getMessage());
 			}
 			final JTextField textField = new JTextField(initialURL);
 			textField.setAlignmentX(Component.LEFT_ALIGNMENT);
-			
+
 			textField.setCaretPosition(0);
 			textField.setPreferredSize(new Dimension(300, 30));
-			//textField.setMaximumSize(new Dimension(300, 30));
+			// textField.setMaximumSize(new Dimension(300, 30));
 			add(textField);
-			
+
+			jComboBox.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent arg0) {
+					int pos = jComboBox.getSelectedIndex();
+					int item = jComboBox.getSelectedIndex();
+					try {
+						textField.setText(setUrl(pos, item));
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			});
+
 			add(Box.createVerticalStrut(20));
 
 			JButton button = new JButton("Go");
 			button.setAlignmentX(Component.LEFT_ALIGNMENT);
-			
+
 			button.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					try {
+						int sourceId = jComboBox.getSelectedIndex();
+						PropertiesManager.setProperty("sourceId", sourceId);
+
 						// try and get the playlistID and userID - if this works
 						// then continue to next panel
-						PlaylistIDManager.getPlaylistIDAndUserIDFromURL(textField.getText());
-						try {
-							PropertiesManager.setProperty("playlistURL", textField.getText());
-						} catch (IOException exception) {
-							showErrorMessage(exception.getMessage());
-						}
+						String[] IDs = new PlaylistIDManager().getPlaylistIDAndUserIDFromURL(textField.getText());
+						PropertiesManager.setProperty(sourceId + "playlistId", IDs[0]);
+						PropertiesManager.setProperty(sourceId + "userId", IDs[1]);
+
+						PropertiesManager.setProperty(sourceId + "playlistURL", textField.getText());
+
 						nextPanel();
 
 					} catch (InvalidPlaylistURLException exception) {
 						// an invalid URL was supplied, don't continue
-						showErrorMessage("That's not a valid spotify.com playlist URL");
+						showErrorMessage("That's not a valid playlist URL");
+					} catch (IOException exception) {
+						showErrorMessage(exception.getMessage());
 					}
 				}
 			});
 			add(button);
 
-			//this.add(box, BorderLayout.EAST);
+			// this.add(box, BorderLayout.EAST);
+		}
+
+		private String setUrl(int initialPos, int selectedItem) throws IOException {
+			String initialURL = PropertiesManager.getProperty(selectedItem + "playlistURL");
+
+			// use a playlist from spotify if this is the user's first time
+			if (initialURL == null || initialURL.equals("")) {
+				initialURL = PlaylistIDManager.DEFAULT_URL[initialPos];
+			}
+			return initialURL;
 		}
 	}
 
@@ -182,6 +233,7 @@ public class VisualizorUI extends JFrame {
 	private class LoadingScreenPanel extends JPanel {
 
 		private final JProgressBar progressBar;
+		private final JLabel trackProcessing;
 
 		LoadingScreenPanel() {
 			setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -190,26 +242,72 @@ public class VisualizorUI extends JFrame {
 			progressBar.setValue(0);
 			add(progressBar);
 			progressBar.setStringPainted(true);
+
+			trackProcessing = new JLabel();
+			add(trackProcessing);
 		}
 
-		private void beginLoading() {
+		// TODO add and modify trackProcessing label
+		private void beginLoading() throws NumberFormatException, IOException {
 			progressBar.setString("Downloading album art...");
-			AlbumArtGrabber albumArtGrabber = new AlbumArtGrabber() {
-				@Override
-				protected void done() {
-					// when the album art grabber is done, generate the collages
-					// and display that progress
-					if (this.errorCode != null) {
-						// there was an error downloading the images
-						showErrorMessage(this.errorCode);
-					} else {
-						// no problems - go ahead and generate collages
-						generateCollages(progressBar);
-					}
-				}
-			};
 
-			setupProgressBarChanging(albumArtGrabber);
+			int sourceId = Integer.parseInt(PropertiesManager.getProperty("sourceId"));
+			Grabber grabber = null;
+
+			switch (sourceId) {
+			case 0:
+				grabber = new SpotifyGrabber() {
+					@Override
+					protected void done() {
+						// when the album art grabber is done, generate the
+						// collages
+						// and display that progress
+						if (this.errorCode != null) {
+							// there was an error downloading the images
+							showErrorMessage(this.errorCode);
+						} else {
+							// no problems - go ahead and generate collages
+							generateCollages(progressBar);
+						}
+					}
+				};
+				break;
+			case 1:
+				grabber = new NetEaseMusicGrabber() {
+					@Override
+					protected void done() {
+						// when the album art grabber is done, generate the
+						// collages
+						// and display that progress
+						if (this.errorCode != null) {
+							// there was an error downloading the images
+							showErrorMessage(this.errorCode);
+						} else {
+							// no problems - go ahead and generate collages
+							generateCollages(progressBar);
+						}
+					}
+				};
+				break;
+			case 2:
+				grabber = new YouTubeGrabber() {
+					@Override
+					protected void done() {
+						// when the album art grabber is done, generate the
+						// collages
+						// and display that progress
+						if (this.errorCode != null) {
+							// there was an error downloading the images
+							showErrorMessage(this.errorCode);
+						} else {
+							// no problems - go ahead and generate collages
+							generateCollages(progressBar);
+						}
+					}
+				};
+			}
+
+			setupProgressBarChanging(grabber);
 		}
 
 		private void setupProgressBarChanging(final SwingWorker task) {
@@ -255,6 +353,7 @@ public class VisualizorUI extends JFrame {
 					+ "<br>2. Click 'browse', go to 'Spotify Playlist Visualizor'"
 					+ "<br>3. Click on 'Collages' then click 'Choose folder'"
 					+ "<br>And enjoy your favourite music, now your favourite wallpaper!"));
+			add(Box.createVerticalStrut(20));
 			JButton settingsButton = new JButton("Open wallpaper settings");
 			add(settingsButton);
 			settingsButton.addActionListener(new ActionListener() {
@@ -297,7 +396,12 @@ public class VisualizorUI extends JFrame {
 
 				// start the loading of collages if this is the progress screen
 				if (panels[panelPosition] instanceof LoadingScreenPanel) {
-					((LoadingScreenPanel) panels[panelPosition]).beginLoading();
+					try {
+						((LoadingScreenPanel) panels[panelPosition]).beginLoading();
+					} catch (NumberFormatException | IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
 			}
 		});

@@ -1,3 +1,5 @@
+package image;
+
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.GradientPaint;
@@ -8,17 +10,24 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Arrays;
 
+import util.ImageCollageCreator;
+
 public class ZuneCollage extends Collage {
 	public static int INTERVAL = 2;
-
-	public ZuneCollage(int x, int y, ImageCollageCreator creator) {
-		super(x, y, creator);
-	}
+	public static int baseSize_x;
+	public static int baseSize_y;
 
 	public ZuneCollage(ImageCollageCreator creator) {
 		super(creator);
 	}
 
+	public Collage setBaseSize(int x, int y) {
+		baseSize_x = x;
+		baseSize_y = y;
+		return this;
+	}
+	
+	@SuppressWarnings("unused")
 	private BufferedImage addGradient(BufferedImage image) {
 		BufferedImage combinedImage = new BufferedImage(COLLAGE_X, COLLAGE_Y, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g = combinedImage.createGraphics();
@@ -62,16 +71,15 @@ public class ZuneCollage extends Collage {
 		return gradient;
 	}
 
-	protected void drawImages(String[] inputImages) throws IOException {
-		collage = new BufferedImage(COLLAGE_X, COLLAGE_Y, BufferedImage.TYPE_INT_RGB);
-		Graphics g = collage.getGraphics();
+	public Collage drawImages(String[] inputImages) throws IOException {
+		Graphics g = getGraphics();
 
 		// the biggest size of the album cover is 300, and the scale is 4:3:1
 		// generate a layout array that indicates the layout of the wallpaper
 		// one grid equals the minimum size of the album cover which is 300/4,
 		// and the medium size pictures take up 9 grids, the biggest take up 16
-		int colomns = (int) Math.floor(COLLAGE_X / IMAGE_X) + 1;
-		int rows = (int) Math.floor(COLLAGE_Y / IMAGE_X) + 1;
+		int colomns = (int) Math.floor(COLLAGE_X / baseSize_x) + 1;
+		int rows = (int) Math.floor(COLLAGE_Y / baseSize_y) + 1;
 		// int total = rows * colomns;
 
 		int[][] layout = new int[rows][colomns];
@@ -104,7 +112,7 @@ public class ZuneCollage extends Collage {
 						}
 					}
 
-					scaleAndDraw(inputImages[order], g, x, y, 4);
+					resizeAndDraw(inputImages[order], g, x, y, 4);
 
 				} else if (randomNum > 16 && notBeenAssigned(layout, x, y, rows, colomns, 3)) {
 					// to a medium size cover
@@ -122,7 +130,7 @@ public class ZuneCollage extends Collage {
 						}
 					}
 
-					scaleAndDraw(inputImages[order], g, x, y, 3);
+					resizeAndDraw(inputImages[order], g, x, y, 3);
 
 				} else {// distribute the grid to a minimum size cover
 					if (layout[x][y] == -1) {
@@ -132,7 +140,7 @@ public class ZuneCollage extends Collage {
 						}
 						layout[x][y] = order;
 
-						scaleAndDraw(inputImages[order], g, x, y, 1);
+						resizeAndDraw(inputImages[order], g, x, y, 1);
 					}
 				}
 
@@ -144,6 +152,7 @@ public class ZuneCollage extends Collage {
 				setProgress((int) (100 * (y + x * colomns) / (rows * colomns)));
 			}
 		}
+		return this;
 
 	}
 
@@ -162,12 +171,17 @@ public class ZuneCollage extends Collage {
 		return tmporder;
 	}
 
-	private void scaleAndDraw(String image, Graphics g, int y, int x, int scale) throws IOException {
-		int size = scale * IMAGE_X + (scale - 1) * 2 * INTERVAL;
-		int pixel_x = x * (IMAGE_X + 2 * INTERVAL) - 20;
-		int pixel_y = y * (IMAGE_X + 2 * INTERVAL) - 20;
-		AlbumCover cover = new AlbumCover(image);
-		g.drawImage(cover.scaleImage(size, size), pixel_x, pixel_y, null);
+	protected void resizeAndDraw(String image, Graphics g, int y, int x, int scale) throws IOException {
+		Cover cover = new Cover(image);
+
+		int size_x = scale * baseSize_x + (scale - 1) * 2 * INTERVAL;
+		int size_y = scale * baseSize_y + (scale - 1) * 2 * INTERVAL;
+		int drawpos_x = x * (baseSize_x + 2 * INTERVAL) - 20;
+		int drawpos_y = y * (baseSize_y + 2 * INTERVAL) - 20;
+		
+		BufferedImage img = cover.resizeTo(size_x, size_y).getImage();
+
+		g.drawImage(img, drawpos_x, drawpos_y, null);
 	}
 
 	private boolean notBeenAssigned(int[][] layout, int x, int y, int rows, int colomns, int finite) {
