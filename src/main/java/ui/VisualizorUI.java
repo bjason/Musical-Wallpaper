@@ -4,11 +4,13 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.plaf.basic.BasicComboBoxRenderer;
 
 import com.google.api.client.repackaged.com.google.common.base.Strings;
 import com.google.common.base.CaseFormat;
 import com.wrapper.spotify.exceptions.WebApiException;
 
+import grabber.APlayerAPIGrabber;
 import grabber.Grabber;
 import grabber.NetEaseMusicGrabber;
 import grabber.SpotifyGrabber;
@@ -19,6 +21,7 @@ import util.PlaylistIDManager;
 import util.PropertiesManager;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -27,6 +30,7 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Hashtable;
 
 /// User interface for application
@@ -94,6 +98,13 @@ public class VisualizorUI extends JFrame {
 			jComboBox.addItem("KuGou Music");
 
 			jComboBox.setPreferredSize(new Dimension(300, 30));
+			// set select-able items
+			DefaultListSelectionModel model = new DefaultListSelectionModel();
+			model.addSelectionInterval(0, 1);
+			
+			EnabledJComboBoxRenderer enableRenderer = new EnabledJComboBoxRenderer(model);
+			jComboBox.setRenderer(enableRenderer);
+			
 			add(jComboBox);
 
 			add(Box.createVerticalStrut(10));
@@ -253,6 +264,7 @@ public class VisualizorUI extends JFrame {
 
 			int sourceId = Integer.parseInt(PropertiesManager.getProperty("sourceId"));
 			Grabber grabber = null;
+			ArrayList<String> transCode = null;
 
 			switch (sourceId) {
 			case 0:
@@ -273,7 +285,13 @@ public class VisualizorUI extends JFrame {
 				};
 				break;
 			case 1:
-				grabber = new NetEaseMusicGrabber() {
+				transCode.add("020111");
+			case 3:
+				transCode.add("020331");
+			case 4:
+				transCode.add("020221");
+
+				grabber = new APlayerAPIGrabber(transCode.get(0)) {
 					@Override
 					protected void done() {
 						// when the album art grabber is done, generate the
@@ -405,6 +423,41 @@ public class VisualizorUI extends JFrame {
 				}
 			}
 		});
+	}
+
+	private class EnabledJComboBoxRenderer extends BasicComboBoxRenderer {
+		static final long serialVersionUID = -984932432414L;
+		private final ListSelectionModel enabledItems;
+		private Color disabledColor = Color.lightGray;
+
+		public EnabledJComboBoxRenderer(ListSelectionModel enabled) {
+			super();
+			this.enabledItems = enabled;
+		}
+
+		public void setDisabledColor(Color disabledColor) {
+			this.disabledColor = disabledColor;
+		}
+
+		@Override
+		public Component getListCellRendererComponent(JList list, Object value, int index,
+				boolean isSelected,
+				boolean cellHasFocus) {
+			Component c = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+			if (!enabledItems.isSelectedIndex(index)) {// not enabled
+				if (isSelected) {
+					c.setBackground(UIManager.getColor("ComboBox.background"));
+				} else {
+					c.setBackground(super.getBackground());
+				}
+				c.setForeground(disabledColor);
+			} else {
+				c.setBackground(super.getBackground());
+				c.setForeground(super.getForeground());
+			}
+
+			return c;
+		}
 	}
 
 	private void showErrorMessage(String message) {
