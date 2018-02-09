@@ -3,6 +3,7 @@ package grabber;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.LinkedHashMap;
 
@@ -68,7 +69,7 @@ public abstract class Grabber extends SwingWorker<Void, Void> {
 		for (File file : new File(DIRECTORY).listFiles()) {
 			file.delete();
 		}
-		
+
 		for (String title : titleAndImages.keySet()) {
 			// create a file in the DIRECTORY, named after the track
 			// String cleanedAlbum = getCleanedFilename(album); // remove
@@ -79,14 +80,50 @@ public abstract class Grabber extends SwingWorker<Void, Void> {
 			if (file.exists()) {
 				continue;
 			}
+
+			// download the image
+			URL url = new URL(titleAndImages.get(title).replace("https", "http"));
+			BufferedImage image = null;
+			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+			conn.setReadTimeout(5000);
+			conn.addRequestProperty("Accept-Language", "en-US,en;q=0.8");
+			conn.addRequestProperty("User-Agent", "Mozilla");
+			conn.addRequestProperty("Referer", "google.com");
+
+			System.out.println("Request URL ... " + url);
+			// normally, 3xx is redirect
+			int status = conn.getResponseCode();
+			while (status != HttpURLConnection.HTTP_OK && image == null) {
+				if (status == HttpURLConnection.HTTP_MOVED_TEMP || status == HttpURLConnection.HTTP_MOVED_PERM
+						|| status == HttpURLConnection.HTTP_SEE_OTHER) {
+
+					// get redirect url from "location" header field
+					String newUrl = conn.getHeaderField("Location");
+
+					// get the cookie if need, for login
+					String cookies = conn.getHeaderField("Set-Cookie");
+
+					// open the new connnection again
+					conn = (HttpURLConnection) new URL(newUrl).openConnection();
+					conn.setRequestProperty("Cookie", cookies);
+					conn.addRequestProperty("Accept-Language", "en-US,en;q=0.8");
+					conn.addRequestProperty("User-Agent", "Mozilla");
+					conn.addRequestProperty("Referer", "google.com");
+
+					image = ImageIO.read(new URL(newUrl));
+					System.out.println("Redirect to URL : " + newUrl);
+				}
+
+			}
+
 			// if the DIRECTORY does not exist, create it
 			file.mkdirs();
 
-			// download the image
-			URL url = new URL(titleAndImages.get(title));
-			BufferedImage image = ImageIO.read(url);
-
 			// write the downloaded image to the file
+			if (image == null) {
+				errorCode = "Can't download the cover image, please try again later.";
+				throw new IOException();
+			}
 			ImageIO.write(image, "jpg", file);
 
 			setProgress(20 + 80 / numOfTracks * i);

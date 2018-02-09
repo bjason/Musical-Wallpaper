@@ -10,6 +10,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.json.*;
 
@@ -19,6 +20,7 @@ import util.InvalidPlaylistURLException;
 import util.NoneInPlaylistException;
 
 public class APlayerAPIGrabber extends Grabber {
+	public static final String[] TransCode_INDEX = {"", "020111", "", "020331", "020221"};
 	private String TransCode;
 
 	public APlayerAPIGrabber(String transCode) {
@@ -68,9 +70,7 @@ public class APlayerAPIGrabber extends Grabber {
 		InputStream inputStream = connection.getInputStream();
 		JSONObject data = getJson(inputStream);
 
-		if ((int) data.get("ResultCode") != 1) {
-			errorCode = "Error processing data. " + (String) data.get("ErrCode");
-		}
+		showErr(data);
 		JSONArray tracks = data.getJSONArray("Body");
 		setPlaylistName(tracks);
 
@@ -86,12 +86,18 @@ public class APlayerAPIGrabber extends Grabber {
 
 				setFileName(titleAndImageNames, i + 1, "", imageUrl, trackName, artistName);
 			}
-		} else
-			throw new InvalidPlaylistURLException();
+		} else throw new InvalidPlaylistURLException();
 		downloadAlbumsToDirectory(titleAndImageNames);
 
 		// close the connection
 		connection.disconnect();
+	}
+
+	protected void showErr(JSONObject data) {
+		if ((int) data.get("ResultCode") != 1) {
+			errorCode = "Error processing data. " + (String) data.get("ErrCode");
+			
+		}
 	}
 
 	private JSONObject getJson(InputStream data) throws IOException {

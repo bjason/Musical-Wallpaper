@@ -13,6 +13,7 @@ import com.wrapper.spotify.exceptions.WebApiException;
 import grabber.APlayerAPIGrabber;
 import grabber.Grabber;
 import grabber.NetEaseMusicGrabber;
+import grabber.QMusicGrabber;
 import grabber.SpotifyGrabber;
 import grabber.YouTubeGrabber;
 import util.ImageCollageCreator;
@@ -30,7 +31,6 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Hashtable;
 
 /// User interface for application
@@ -101,6 +101,7 @@ public class VisualizorUI extends JFrame {
 			// set select-able items
 			DefaultListSelectionModel model = new DefaultListSelectionModel();
 			model.addSelectionInterval(0, 1);
+			model.addSelectionInterval(3, 3);
 			
 			EnabledJComboBoxRenderer enableRenderer = new EnabledJComboBoxRenderer(model);
 			jComboBox.setRenderer(enableRenderer);
@@ -264,7 +265,7 @@ public class VisualizorUI extends JFrame {
 
 			int sourceId = Integer.parseInt(PropertiesManager.getProperty("sourceId"));
 			Grabber grabber = null;
-			ArrayList<String> transCode = null;
+			String transCode;
 
 			switch (sourceId) {
 			case 0:
@@ -284,14 +285,30 @@ public class VisualizorUI extends JFrame {
 					}
 				};
 				break;
-			case 1:
-				transCode.add("020111");
 			case 3:
-				transCode.add("020331");
+				transCode = APlayerAPIGrabber.TransCode_INDEX[sourceId];
+				
+				grabber = new QMusicGrabber(transCode) {
+					@Override
+					protected void done() {
+						// when the album art grabber is done, generate the
+						// collages
+						// and display that progress
+						if (this.errorCode != null) {
+							// there was an error downloading the images
+							showErrorMessage(this.errorCode);
+						} else {
+							// no problems - go ahead and generate collages
+							generateCollages(progressBar);
+						}
+					}
+				};
+				break;
+			case 1:
 			case 4:
-				transCode.add("020221");
+				transCode = APlayerAPIGrabber.TransCode_INDEX[sourceId];
 
-				grabber = new APlayerAPIGrabber(transCode.get(0)) {
+				grabber = new APlayerAPIGrabber(transCode) {
 					@Override
 					protected void done() {
 						// when the album art grabber is done, generate the

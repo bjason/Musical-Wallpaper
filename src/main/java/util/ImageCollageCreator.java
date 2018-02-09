@@ -39,9 +39,6 @@ public class ImageCollageCreator extends SwingWorker<Void, Void> {
 	static final String outputDir = System.getProperty("user.home") + File.separator + "Pictures" + File.separator
 			+ "Spotify Playlist Visualizor" + File.separator + "Collages";
 
-	private static boolean isOrderMode = false;
-	private static boolean isZuneMode = false;
-
 	protected String errorCode = null; // to avoid SwingWorkers missing
 										// exception handling
 
@@ -78,7 +75,8 @@ public class ImageCollageCreator extends SwingWorker<Void, Void> {
 		// Spotify
 		case 0:
 			// 163 Music
-		case 1: {
+		case 1:
+		case 3:{
 			switch (imageSizeCode) {
 			case 0:
 			case 1:
@@ -88,7 +86,7 @@ public class ImageCollageCreator extends SwingWorker<Void, Void> {
 				drawOrdinaryMode(size, collage, allImages);
 				break;
 			case 3:
-				isOrderMode = true;
+				// Chart Mode
 				Collections.reverse(allImages);
 				// make the playlist a countdown
 
@@ -103,7 +101,7 @@ public class ImageCollageCreator extends SwingWorker<Void, Void> {
 				drawAndSave(collage, thisCollageImages, outputFile);
 				break;
 			case 4:
-				isZuneMode = true;
+				// Zune Mode
 				baseSize = (size - 6 * ZuneCollage.INTERVAL) / 4;
 				Collections.shuffle(allImages);
 

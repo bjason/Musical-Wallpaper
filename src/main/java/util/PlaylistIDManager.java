@@ -1,8 +1,7 @@
 package util;
 
 import java.io.IOException;
-
-import com.wrapper.spotify.UtilProtos.Url;
+import java.util.ArrayList;
 
 /// Utility class to extract userID and playlistID from the playlist URL
 public class PlaylistIDManager {
@@ -10,10 +9,12 @@ public class PlaylistIDManager {
 			"https://open.spotify.com/user/playlistmeukfeatured/playlist/0F2RaOrNectaIorC71tBQJ",
 			"http://music.163.com/#/playlist?id=498231585",
 			"https://www.youtube.com/playlist?list=PLgnqnloKbnvK6BsJhzfrY8fD_cEYFS6uS",
-			"https://y.qq.com/n/yqq/playlist/1096418502.html#stat=y_new.profile.create_playlist.love.click&dirid=201",
+			"https://y.qq.com/n/yqq/playlist/3717970005.html",
 			"http://www.kugou.com/yy/special/single/221986.html" };
 
 	int sourceId;
+	String userID = "";
+	String playlistID = "";
 
 	public PlaylistIDManager() {
 		// TODO Auto-generated constructor stub
@@ -34,55 +35,80 @@ public class PlaylistIDManager {
 		if (URL == null || URL.equals("")) {
 			throw new InvalidPlaylistURLException();
 		}
-		String userID = "";
-		String playlistID = "";
 		String key;
 
 		switch (sourceId) {
 		case 0:
-			String[] parts = URL.split("/");
-			// example URL:
-			// https://open.spotify.com/user/jellyberg/playlist/5P7onC083Jj3A78VSyk4ns
-			// note that userID always follows /user/ and playlistID always
-			// follows /playlist/
-			// example YTB
-			// URL:www.youtube.com/playlist?list=PLgnqnloKbnvK6BsJhzfrY8fD_cEYFS6uS
-			try {
-				for (int i = 0; i < parts.length; i++) {
-					String part = parts[i];
-					if (part.equals("user")) {
-						userID = parts[i + 1];
-					}
-					if (part.equals("playlist")) {
-						playlistID = parts[i + 1];// .split("?")[0];
-					}
-				}
-			} catch (ArrayIndexOutOfBoundsException e) {
-				throw new InvalidPlaylistURLException();
-			}
-
-			// there must be a userID and playlistID in the URL - and it has to
-			// be from spotify of course!
-			if (userID.equals("") || playlistID.equals("") || !URL.contains("spotify.com")) {
-				throw new InvalidPlaylistURLException();
-			}
+			key = "open.spotify.com/user/";
+			judgeBySlash(URL, key);
 			break;
-
 		case 1: // 163 music
 			key = "music.163.com/#/playlist?id=";
-			playlistID = judgeAndgetId(URL, playlistID, key);
+			judgeByEqual(URL, key);
 			break;
 		case 2: // YouTube
 			key = "www.youtube.com/playlist?list=";
-			playlistID = judgeAndgetId(URL, playlistID, key);
+			judgeByEqual(URL, key);
+			break;
+		case 3: // QQM
+			// there are three kinds of url in qq music to indicate a playlist
+			//https://y.qq.com/n/yqq/playlist/*id*.html
+			//https://y.qq.com/n/yqq/playsquare/*id*
+			//y.qq.com/w/taoge.html?id=*id*
+			if (URL.contains("y.qq.com/w/taoge.html?id=")) {
+				judgeByEqual(URL, "y.qq.com/w/taoge.html?id=");
+			} else {
+				URL = URL.split("#")[0];
+				judgeBySlash(URL, "y.qq.com/n/yqq/");
+			}
+			break;
+		case 4:// KUGOU
+			key = "www.kugou.com/yy/special/single/";
+			judgeByEqual(URL, key);
 			break;
 		}
 
 		return new String[] { playlistID, userID };
 	}
 
-	private String judgeAndgetId(String URL, String playlistID, String key) throws InvalidPlaylistURLException {
-		URL = URL.replace("http://", "").replace("https://", "");
+	private void judgeBySlash(String URL, String key) throws InvalidPlaylistURLException {
+		URL = getTrunk(URL);
+		String[] parts = URL.split("/");
+		// example URL:
+		// https://open.spotify.com/user/jellyberg/playlist/5P7onC083Jj3A78VSyk4ns
+		// note that userID always follows /user/ and playlistID always
+		// follows /playlist/
+		// example YTB
+		// URL:www.youtube.com/playlist?list=PLgnqnloKbnvK6BsJhzfrY8fD_cEYFS6uS
+		try {
+			for (int i = 0; i < parts.length; i++) {
+				String part = parts[i];
+				if (part.equals("user")) {
+					userID = parts[i + 1];
+				}
+				if (part.equals("playlist") || part.equals("playsquare") || part.equals("single")) {
+					playlistID = parts[i + 1].replace(".html", "");// .split("?")[0];
+				}
+			}
+		} catch (ArrayIndexOutOfBoundsException e) {
+			throw new InvalidPlaylistURLException();
+		}
+
+		// there must be a userID and playlistID in the URL - and it has to
+		// be from spotify of course!
+		if (key.contains("spotify")) {
+			if (userID.equals("") || playlistID.equals("") || !URL.startsWith(key)) {
+				throw new InvalidPlaylistURLException();
+			}
+		} else {
+			if (playlistID.equals("") || !URL.startsWith(key)) {
+				throw new InvalidPlaylistURLException();
+			}
+		}
+	}
+
+	private String judgeByEqual(String URL, String key) throws InvalidPlaylistURLException {
+		URL = getTrunk(URL);
 		playlistID = URL.substring(URL.indexOf("=") + 1, URL.length());
 		// TODO validate the id with more details
 
@@ -90,5 +116,10 @@ public class PlaylistIDManager {
 			throw new InvalidPlaylistURLException();
 		}
 		return playlistID;
+	}
+
+	private String getTrunk(String URL) {
+		URL = URL.replace("http://", "").replace("https://", "");
+		return URL;
 	}
 }
