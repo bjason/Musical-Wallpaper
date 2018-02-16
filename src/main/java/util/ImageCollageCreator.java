@@ -70,52 +70,41 @@ public class ImageCollageCreator extends SwingWorker<Void, Void> {
 		ArrayList<String> allImages = getImageFilenames(sourceDir);
 		numTracks = allImages.size();
 
-		switch (sourceId) {
-		// Spotify
+		switch (imageSizeCode) {
 		case 0:
-			// 163 Music
 		case 1:
-		case 3:{
-			switch (imageSizeCode) {
-			case 0:
-			case 1:
-			case 2:
-				size = SpotifyGrabber.SPOTIFY_IMAGE_SIZES[imageSizeCode];
+		case 2:
+			size = SpotifyGrabber.SPOTIFY_IMAGE_SIZES[imageSizeCode];
 
-				drawOrdinaryMode(size, collage, allImages);
-				break;
-			case 3:
-				// Chart Mode
-				Collections.reverse(allImages);
-				// make the playlist a countdown
+			drawOrdinaryMode(size, collage, allImages);
+			break;
+		case 3:
+			// Chart Mode
+			Collections.reverse(allImages);
+			// make the playlist a countdown
 
-				thisCollageImages = getCollageImagesNames(allImages, numTracks);
-				int collage_x = size + Cover.DETAIL_X;
-				int collage_y = size * numTracks;
+			thisCollageImages = getCollageImagesNames(allImages, numTracks);
+			int collage_x = size + Cover.DETAIL_X;
+			int collage_y = size * numTracks;
 
-				collage = new ChartCollage(collage_x, collage_y, this);
-				collage.setCoverSize(size, size);
+			collage = new ChartCollage(collage_x, collage_y, this);
+			collage.setCoverSize(size, size);
 
-				outputFile = getOutputFilename(outputDir);
-				drawAndSave(collage, thisCollageImages, outputFile);
-				break;
-			case 4:
-				// Zune Mode
-				baseSize = (size - 6 * ZuneCollage.INTERVAL) / 4;
-				Collections.shuffle(allImages);
+			outputFile = getOutputFilename(outputDir);
+			drawAndSave(collage, thisCollageImages, outputFile);
+			break;
+		case 4:
+			// Zune Mode
+			baseSize = (size - 6 * ZuneCollage.INTERVAL) / 4;
+			Collections.shuffle(allImages);
 
-				thisCollageImages = getCollageImagesNames(allImages, numTracks);
-				collage = new ZuneCollage(this).setBaseSize(baseSize, baseSize);
+			thisCollageImages = getCollageImagesNames(allImages, numTracks);
+			collage = new ZuneCollage(this).setBaseSize(baseSize, baseSize);
 
-				outputFile = getOutputFilename(outputDir);
-				drawAndSave(collage, thisCollageImages, outputFile);
-				break;
-			}
+			outputFile = getOutputFilename(outputDir);
+			drawAndSave(collage, thisCollageImages, outputFile);
 			break;
 		}
-		// youtube
-
-		}// end of sourceid switch
 	}
 
 	private void drawAndSave(Collage collage, String[] thisCollageImages, File outputFile) throws IOException {
@@ -169,7 +158,6 @@ public class ImageCollageCreator extends SwingWorker<Void, Void> {
 		if (unusedImagesNames.size() > 0) {
 			collage = new Collage(this);
 			collage.setCoverSize(size_x, size_y);
-			
 
 			count++;
 			// start by using all remaining unused images
@@ -177,7 +165,7 @@ public class ImageCollageCreator extends SwingWorker<Void, Void> {
 			int progToSet = 100 - getProgress();
 			int progPerIterUnit = progToSet / (imagesPerCollage / lastCollageImages.size());
 			int prog = 0;
-			
+
 			// then top up with any other images
 			while (lastCollageImages.size() < imagesPerCollage) {
 				int imagesToAdd = imagesPerCollage - lastCollageImages.size();
@@ -186,7 +174,7 @@ public class ImageCollageCreator extends SwingWorker<Void, Void> {
 				}
 				lastCollageImages.addAll(allImages.subList(0, imagesToAdd));
 				Collections.shuffle(allImages);
-				
+
 				prog += progPerIterUnit;
 				setProgress(prog);
 			}

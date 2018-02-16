@@ -10,7 +10,7 @@ public class PlaylistIDManager {
 			"http://music.163.com/#/playlist?id=498231585",
 			"https://www.youtube.com/playlist?list=PLgnqnloKbnvK6BsJhzfrY8fD_cEYFS6uS",
 			"https://y.qq.com/n/yqq/playlist/3717970005.html",
-			"http://www.kugou.com/yy/special/single/221986.html" };
+			"http://www.kugou.com/yy/special/single/102589.html" };
 
 	int sourceId;
 	String userID = "";
@@ -64,7 +64,7 @@ public class PlaylistIDManager {
 			break;
 		case 4:// KUGOU
 			key = "www.kugou.com/yy/special/single/";
-			judgeByEqual(URL, key);
+			judgeBySlash(URL, key);
 			break;
 		}
 

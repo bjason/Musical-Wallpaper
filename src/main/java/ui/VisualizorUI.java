@@ -12,7 +12,6 @@ import com.wrapper.spotify.exceptions.WebApiException;
 
 import grabber.APlayerAPIGrabber;
 import grabber.Grabber;
-import grabber.QMusicGrabber;
 import grabber.SpotifyGrabber;
 import grabber.YouTubeGrabber;
 import util.ImageCollageCreator;
@@ -100,7 +99,7 @@ public class VisualizorUI extends JFrame {
 			// set select-able items
 			DefaultListSelectionModel model = new DefaultListSelectionModel();
 			model.addSelectionInterval(0, 1);
-			model.addSelectionInterval(3, 3);
+			model.addSelectionInterval(3, 4);
 			
 			EnabledJComboBoxRenderer enableRenderer = new EnabledJComboBoxRenderer(model);
 			jComboBox.setRenderer(enableRenderer);
@@ -285,24 +284,6 @@ public class VisualizorUI extends JFrame {
 				};
 				break;
 			case 3:
-				transCode = APlayerAPIGrabber.TransCode_INDEX[sourceId];
-				
-				grabber = new QMusicGrabber(transCode) {
-					@Override
-					protected void done() {
-						// when the album art grabber is done, generate the
-						// collages
-						// and display that progress
-						if (this.errorCode != null) {
-							// there was an error downloading the images
-							showErrorMessage(this.errorCode);
-						} else {
-							// no problems - go ahead and generate collages
-							generateCollages(progressBar);
-						}
-					}
-				};
-				break;
 			case 1:
 			case 4:
 				transCode = APlayerAPIGrabber.TransCode_INDEX[sourceId];

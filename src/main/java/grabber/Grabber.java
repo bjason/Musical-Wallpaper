@@ -86,9 +86,6 @@ public abstract class Grabber extends SwingWorker<Void, Void> {
 			BufferedImage image = null;
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 			conn.setReadTimeout(5000);
-			conn.addRequestProperty("Accept-Language", "en-US,en;q=0.8");
-			conn.addRequestProperty("User-Agent", "Mozilla");
-			conn.addRequestProperty("Referer", "google.com");
 
 			System.out.println("Request URL ... " + url);
 			// normally, 3xx is redirect
@@ -106,9 +103,6 @@ public abstract class Grabber extends SwingWorker<Void, Void> {
 					// open the new connnection again
 					conn = (HttpURLConnection) new URL(newUrl).openConnection();
 					conn.setRequestProperty("Cookie", cookies);
-					conn.addRequestProperty("Accept-Language", "en-US,en;q=0.8");
-					conn.addRequestProperty("User-Agent", "Mozilla");
-					conn.addRequestProperty("Referer", "google.com");
 
 					image = ImageIO.read(new URL(newUrl));
 					System.out.println("Redirect to URL : " + newUrl);
