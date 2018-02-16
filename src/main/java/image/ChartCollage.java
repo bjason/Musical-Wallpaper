@@ -27,7 +27,6 @@ public class ChartCollage extends Collage {
 		int i = 0;
 		for (String image : inputImages) {
 			Cover cover = doResize(new Cover(image));
-			System.out.println(cover.IMAGE_X);
 
 			g.drawImage(cover.getImage(), x, y, null);
 			x += cover.IMAGE_X;

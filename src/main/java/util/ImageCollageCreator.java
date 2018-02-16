@@ -3,7 +3,6 @@ package util;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 
-import grabber.NetEaseMusicGrabber;
 import grabber.SpotifyGrabber;
 import image.Collage;
 import image.Cover;
