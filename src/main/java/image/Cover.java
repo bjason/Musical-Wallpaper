@@ -72,6 +72,11 @@ public class Cover {
         return bufferedImage;
     }
 
+    final private static int DRAWSTRING_TITLE = 0;
+    final private static int DRAWSTRING_ARTIST = 1;
+    final private static int x_title = 10, x_artist = 30, y_title = 120, y_artist = 220;
+    final private static int TITLE_SIZE = 70, ARTIST_SIZE = 40;
+
     public BufferedImage createDetailSection() {
         BufferedImage section = new BufferedImage(DETAIL_X, IMAGE_Y, BufferedImage.TYPE_INT_RGB);
         Graphics2D background = section.createGraphics();
@@ -91,9 +96,9 @@ public class Cover {
         String[] str = getRankAndTrackName();
         background.drawString(str[0], 10, 100);
 
-        DrawString(background, str[1], 70, 10, 120);
+        DrawString(background, str[1], DRAWSTRING_TITLE);
 
-        DrawString(background, getArtistName(), 40, 30, 220);
+        DrawString(background, getArtistName(), DRAWSTRING_ARTIST);
 
         // artist name
         background.setColor(Color.BLACK);
@@ -104,29 +109,57 @@ public class Cover {
         return section;
     }
 
-    private void DrawString(Graphics2D background, String str, int size, int x, int y) {
+    private void DrawString(Graphics2D background, String str, int id) {
+        FontRenderContext frc = new FontRenderContext(new AffineTransform(), true, true);
+        final Font en_font;
+        final Font cn_font;
+        int size;
+
+        final int x, y;
+        if (id == DRAWSTRING_TITLE) // 0 for title
+        {
+            x = x_title;
+            y = y_title;
+            size = TITLE_SIZE;
+            en_font = new Font("Constantia", Font.BOLD, size);
+            cn_font = new Font("FZYaSongS-M-GB", Font.BOLD, size);
+        } else { // 1 for artist
+            x = x_artist;
+            y = y_artist;
+            size = ARTIST_SIZE;
+            en_font = new Font("Constantia", Font.ITALIC, size);
+            cn_font = new Font("FZYaSongS-M-GB", Font.ITALIC, size);
+        }
+
+
         background.setColor(Color.BLACK);
         int cn_pos = findChineseChar(str, 0);
         int en_pos = 0;
         int width = 0;
-        FontRenderContext frc = new FontRenderContext(new AffineTransform(), true, true);
-        Font en_font = new Font("Constantia", Font.BOLD, size);
-        Font cn_font = new Font("FZYaSongS-M-GB", Font.BOLD, size);
+
+        if (cn_pos == -1) {
+            background.setFont(en_font);
+            background.drawString(str, x, y);
+
+            return;
+        }
 
         while (cn_pos != -1 || en_pos != -1) {
             // there are chinese char
             // draw english char first
             String en_str = str.substring(en_pos, cn_pos);
             background.setFont(en_font);
-            background.drawString(en_str, 10 + width, y);
+            background.drawString(en_str, x + width, y);
             width += (int) en_font.getStringBounds(en_str, frc).getWidth();
 
             // draw chinese char
             en_pos = findEnglishChar(str, cn_pos);
             String cn_str = str.substring(cn_pos, en_pos);
             background.setFont(cn_font);
-            background.drawString(cn_str, 10 + width, y);
+            background.drawString(cn_str, x + width, y);
             width += (int) cn_font.getStringBounds(en_str, frc).getWidth();
+
+            cn_pos = findChineseChar(str, en_pos);
         }
     }
 

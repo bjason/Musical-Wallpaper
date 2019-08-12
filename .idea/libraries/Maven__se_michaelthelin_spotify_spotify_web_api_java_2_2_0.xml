@@ -3,13 +3,6 @@
     <properties maven-id="se.michaelthelin.spotify:spotify-web-api-java:2.2.0" />
     <CLASSES>
       <root url="jar://$MAVEN_REPOSITORY$/se/michaelthelin/spotify/spotify-web-api-java/2.2.0/spotify-web-api-java-2.2.0.jar!/" />
-      <root url="jar://$MAVEN_REPOSITORY$/com/google/code/gson/gson/2.8.5/gson-2.8.5.jar!/" />
-      <root url="jar://$MAVEN_REPOSITORY$/com/neovisionaries/nv-i18n/1.23/nv-i18n-1.23.jar!/" />
-      <root url="jar://$MAVEN_REPOSITORY$/org/apache/httpcomponents/httpclient-cache/4.5.5/httpclient-cache-4.5.5.jar!/" />
-      <root url="jar://$MAVEN_REPOSITORY$/org/apache/httpcomponents/httpclient/4.5.5/httpclient-4.5.5.jar!/" />
-      <root url="jar://$MAVEN_REPOSITORY$/org/apache/httpcomponents/httpcore/4.4.9/httpcore-4.4.9.jar!/" />
-      <root url="jar://$MAVEN_REPOSITORY$/commons-codec/commons-codec/1.10/commons-codec-1.10.jar!/" />
-      <root url="jar://$MAVEN_REPOSITORY$/commons-logging/commons-logging/1.2/commons-logging-1.2.jar!/" />
     </CLASSES>
     <JAVADOC>
       <root url="jar://$MAVEN_REPOSITORY$/se/michaelthelin/spotify/spotify-web-api-java/2.2.0/spotify-web-api-java-2.2.0-javadoc.jar!/" />

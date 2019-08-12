@@ -152,7 +152,7 @@ public class YouTubeGrabber extends Grabber {
 
 	@Override
 	protected <T> void setNumTrack(T playlist) throws NoneInPlaylistException {
-		numOfTracks = (int) playlist;
+//		numOfTracks = (int) playlist;
 		isEmpty();
 	}
 }
