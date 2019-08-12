@@ -86,7 +86,7 @@ public class APlayerAPIGrabber extends Grabber {
 				setFileName(titleAndImageNames, i + 1, "", imageUrl, trackName, artistName);
 			}
 		} else throw new InvalidPlaylistURLException();
-		downloadAlbumsToDirectory(titleAndImageNames);
+		downloadAlbumsToDirectory();
 
 		// close the connection
 		connection.disconnect();

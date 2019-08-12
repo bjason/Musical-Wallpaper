@@ -112,7 +112,7 @@ public class YouTubeGrabber extends Grabber {
 		}
 		setNumTrack(order);
 		
-		downloadAlbumsToDirectory(titleAndImageNames);
+		downloadAlbumsToDirectory();
 
 	}
 	

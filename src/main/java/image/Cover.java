@@ -9,6 +9,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 
 import javax.imageio.ImageIO;
 
@@ -21,8 +22,8 @@ public class Cover {
     private String artistName;
     public int IMAGE_X;
     public int IMAGE_Y;
-    public final static int DETAIL_X = 1500;
-    public final static String ARTIST_SEPARATOR = " byArtist ";
+    public final static int DETAIL_X = 2000;
+    public final static String ARTIST_SEPARATOR = " - ";
 
     public Cover(BufferedImage image, String name) {
         this.image = image;
@@ -41,7 +42,7 @@ public class Cover {
         String dir;
         this.name = name;
 
-        dir = ImageCollageCreator.sourceDir + File.separator + name;
+        dir = ImageCollageCreator.sourceDir + File.separator + name + ".jpg";
         this.image = getImage(dir);
 
         setSize();
@@ -74,12 +75,15 @@ public class Cover {
 
     final private static int DRAWSTRING_TITLE = 0;
     final private static int DRAWSTRING_ARTIST = 1;
-    final private static int x_title = 10, x_artist = 30, y_title = 120, y_artist = 220;
+    final private static int x_title = 10, x_artist = 30, y_title = 150, y_artist = 240;
     final private static int TITLE_SIZE = 70, ARTIST_SIZE = 40;
+
+    private Graphics2D background;
 
     public BufferedImage createDetailSection() {
         BufferedImage section = new BufferedImage(DETAIL_X, IMAGE_Y, BufferedImage.TYPE_INT_RGB);
-        Graphics2D background = section.createGraphics();
+        background = section.createGraphics();
+        String[] str = getRankAndTrackName();
         //
         // background.setBackground(Color.WHITE);
 
@@ -93,12 +97,11 @@ public class Cover {
         background = section.createGraphics();
         background.setColor(Color.GRAY);
         background.setFont(new Font("Constantia", Font.BOLD, 150));
-        String[] str = getRankAndTrackName();
         background.drawString(str[0], 10, 100);
 
-        DrawString(background, str[1], DRAWSTRING_TITLE);
+        DrawString(str[1], DRAWSTRING_TITLE);
 
-        DrawString(background, getArtistName(), DRAWSTRING_ARTIST);
+        DrawString(getArtistName(), DRAWSTRING_ARTIST);
 
         // artist name
         background.setColor(Color.BLACK);
@@ -109,7 +112,33 @@ public class Cover {
         return section;
     }
 
-    private void DrawString(Graphics2D background, String str, int id) {
+    public BufferedImage createDetailSection(HashMap<String, String> trackInfo) {
+        BufferedImage section = new BufferedImage(DETAIL_X, IMAGE_Y, BufferedImage.TYPE_INT_RGB);
+        background = section.createGraphics();
+        //
+        // background.setBackground(Color.WHITE);
+
+        // //TODO background.setColor(getMainColor());
+        background.setColor(Color.WHITE);
+        background.fillRect(0, 0, DETAIL_X, IMAGE_Y);
+        background.dispose();
+
+        // draw text on the image
+        // draw rank and name
+        background = section.createGraphics();
+        background.setColor(Color.GRAY);
+        background.setFont(new Font("Constantia", Font.BOLD, 150));
+        background.drawString(trackInfo.get("order"), 10, 100);
+
+        DrawString(trackInfo.get("Title"), DRAWSTRING_TITLE);
+
+        DrawString(trackInfo.get("Artist"), DRAWSTRING_ARTIST);
+
+        background.dispose();
+        return section;
+    }
+
+    private void DrawString(String str, int id) {
         FontRenderContext frc = new FontRenderContext(new AffineTransform(), true, true);
         final Font en_font;
         final Font cn_font;
@@ -134,7 +163,7 @@ public class Cover {
 
         background.setColor(Color.BLACK);
         int cn_pos = findChineseChar(str, 0);
-        int en_pos = 0;
+        int en_pos = findEnglishChar(str, 0);
         int width = 0;
 
         if (cn_pos == -1) {
@@ -145,21 +174,30 @@ public class Cover {
         }
 
         while (cn_pos != -1 || en_pos != -1) {
+            if (en_pos == -1) en_pos = str.length();
+            if (cn_pos == -1) cn_pos = str.length();
             // there are chinese char
             // draw english char first
-            String en_str = str.substring(en_pos, cn_pos);
-            background.setFont(en_font);
-            background.drawString(en_str, x + width, y);
-            width += (int) en_font.getStringBounds(en_str, frc).getWidth();
+            if (en_pos < cn_pos) {
+                if (en_pos == -1) en_pos = 0;
+                String en_str = str.substring(en_pos, cn_pos);
+                background.setFont(en_font);
+                background.drawString(en_str, x + width, y);
+                width += (int) en_font.getStringBounds(en_str, frc).getWidth();
 
-            // draw chinese char
-            en_pos = findEnglishChar(str, cn_pos);
-            String cn_str = str.substring(cn_pos, en_pos);
-            background.setFont(cn_font);
-            background.drawString(cn_str, x + width, y);
-            width += (int) cn_font.getStringBounds(en_str, frc).getWidth();
+                cn_pos = findChineseChar(str, en_pos + 1);
+                en_pos = findEnglishChar(str, cn_pos);
+            } else {
+                // draw chinese char
+                if (cn_pos == -1) cn_pos = 0;
+                String cn_str = str.substring(cn_pos, en_pos);
+                background.setFont(cn_font);
+                background.drawString(cn_str, x + width, y);
+                width += (int) cn_font.getStringBounds(cn_str, frc).getWidth();
 
-            cn_pos = findChineseChar(str, en_pos);
+                en_pos = findEnglishChar(str, cn_pos + 1);
+                cn_pos = findChineseChar(str, en_pos);
+            }
         }
     }
 
@@ -191,6 +229,7 @@ public class Cover {
 
     //    https://stackoverflow.com/questions/37430869/how-to-find-the-first-chinese-character-in-a-java-string
     public static int findChineseChar(String s, int startPos) {
+        if (startPos < 0 || startPos >= s.length()) return -1;
         for (int i = startPos; i < s.length(); ) {
             int index = i;
             int codepoint = s.codePointAt(i);
@@ -203,6 +242,7 @@ public class Cover {
     }
 
     public static int findEnglishChar(String s, int startPos) {
+        if (startPos < 0 || startPos >= s.length()) return -1;
         for (int i = startPos; i < s.length(); ) {
             int index = i;
             int codepoint = s.codePointAt(i);

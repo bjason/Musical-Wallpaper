@@ -5,6 +5,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import javax.imageio.ImageIO;
 
@@ -72,5 +73,18 @@ public class Collage extends BufferedImage {
 			return cover.resizeTo(COVER_X, COVER_Y);
 		} else
 			return cover;
+	}
+
+	public static String getFileName(String order, String title, String artistName, String suffix){
+		title = title.replaceAll("[\\\\/:*?\"<>|]", "_");
+		artistName = artistName.replaceAll("[\\\\/:*?\"<>|]", "_");
+		return order + ". " + title + Cover.ARTIST_SEPARATOR + artistName + suffix;
+	}
+
+	public static String getFileName(HashMap<String, String> trackInfo, String suffix){
+		String title = trackInfo.get("Title").replaceAll("[\\\\/:*?\"<>|]", "_");
+		String artistName = trackInfo.get("Artist").replaceAll("[\\\\/:*?\"<>|]", "_");
+		String order = trackInfo.get("order");
+		return order + ". " + title + Cover.ARTIST_SEPARATOR + artistName + suffix;
 	}
 }

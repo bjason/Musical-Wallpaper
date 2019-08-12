@@ -239,9 +239,9 @@ public class VisualizorUI extends JFrame {
 		}
 	}
 
-	private class LoadingScreenPanel extends JPanel {
+	static public JProgressBar progressBar;
 
-		private final JProgressBar progressBar;
+	private class LoadingScreenPanel extends JPanel {
 		private final JLabel trackProcessing;
 
 		LoadingScreenPanel() {

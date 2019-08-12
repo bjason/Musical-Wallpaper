@@ -3,6 +3,7 @@ package util;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 
+import grabber.Grabber;
 import grabber.SpotifyGrabber;
 import image.Collage;
 import image.Cover;
@@ -83,7 +84,7 @@ public class ImageCollageCreator extends SwingWorker<Void, Void> {
 			Collections.reverse(allImages);
 			// make the playlist a countdown
 
-			thisCollageImages = getCollageImagesNames(allImages, numTracks);
+//			thisCollageImages = getCollageImagesNames(allImages, numTracks);
 			int collage_x = size + Cover.DETAIL_X;
 			int collage_y = size * numTracks;
 
@@ -91,7 +92,7 @@ public class ImageCollageCreator extends SwingWorker<Void, Void> {
 			collage.setCoverSize(size, size);
 
 			outputFile = getOutputFilename(outputDir);
-			drawAndSave(collage, thisCollageImages, outputFile);
+			drawAndSave(collage, Grabber.getAllTracksInfo(), outputFile);
 			break;
 		case 4:
 			// Zune Mode
@@ -109,6 +110,12 @@ public class ImageCollageCreator extends SwingWorker<Void, Void> {
 
 	private void drawAndSave(Collage collage, String[] thisCollageImages, File outputFile) throws IOException {
 		collage.drawImages(thisCollageImages).createAndSaveCollage(outputFile);
+	}
+
+
+	private void drawAndSave(Collage collage, ArrayList<HashMap<String, String>> allTracksInfo, File outputFile) throws IOException {
+		ChartCollage cc = (ChartCollage)collage;
+		cc.drawImages(allTracksInfo).createAndSaveCollage(outputFile);
 	}
 
 	private void drawOrdinaryMode(int size, Collage collage, ArrayList<String> allImages) throws IOException {
@@ -196,8 +203,13 @@ public class ImageCollageCreator extends SwingWorker<Void, Void> {
 		return thisCollageImages;
 	}
 
+	String cleanUpOutputFileName (String playlistName) {
+		return playlistName.replaceAll("[\\\\/:*?\"<>|]", "_");
+	}
+
 	private File getOutputFilename(String outputDir) {
-		return new File(outputDir + File.separator + "Albums in " + SpotifyGrabber.playlistName + ".jpg");
+		String fileName = cleanUpOutputFileName(SpotifyGrabber.playlistName);
+		return new File(outputDir + File.separator + "Albums in " + fileName + ".jpg");
 	}
 
 	private File getOutputFilename(String outputDir, int count) {
