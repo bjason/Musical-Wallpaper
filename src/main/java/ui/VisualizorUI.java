@@ -8,7 +8,7 @@ import javax.swing.plaf.basic.BasicComboBoxRenderer;
 
 import com.google.api.client.repackaged.com.google.common.base.Strings;
 import com.google.common.base.CaseFormat;
-import com.wrapper.spotify.exceptions.WebApiException;
+import com.wrapper.spotify.exceptions.SpotifyWebApiException;
 
 import grabber.APlayerAPIGrabber;
 import grabber.Grabber;
@@ -165,7 +165,6 @@ public class VisualizorUI extends JFrame {
 						PropertiesManager.setProperty(sourceId + "playlistURL", textField.getText());
 
 						nextPanel();
-
 					} catch (InvalidPlaylistURLException exception) {
 						// an invalid URL was supplied, don't continue
 						showErrorMessage("That's not a valid playlist URL");

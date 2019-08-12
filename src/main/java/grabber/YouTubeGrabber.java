@@ -23,7 +23,7 @@ import com.google.api.services.youtube.model.PlaylistItem;
 import com.google.api.services.youtube.model.PlaylistItemListResponse;
 import com.google.api.services.youtube.model.PlaylistListResponse;
 import com.google.common.collect.Lists;
-import com.wrapper.spotify.exceptions.WebApiException;
+import com.wrapper.spotify.exceptions.SpotifyWebApiException;
 
 import util.YouTubeAuth;
 import util.InvalidPlaylistURLException;
@@ -52,7 +52,7 @@ public class YouTubeGrabber extends Grabber {
 	// TODO split the playlist when it is too long
 
 	@Override
-	public void main() throws IOException, WebApiException, InvalidPlaylistURLException, NoneInPlaylistException {
+	public void main() throws IOException, SpotifyWebApiException, InvalidPlaylistURLException, NoneInPlaylistException {
 		// get youtube api
 		List<String> scopes = Lists.newArrayList("https://www.googleapis.com/auth/youtube.readonly");
 		// YouTube youTube = getYouTubeService();

@@ -10,7 +10,7 @@ import java.util.LinkedHashMap;
 import javax.imageio.ImageIO;
 import javax.swing.SwingWorker;
 
-import com.wrapper.spotify.exceptions.WebApiException;
+import com.wrapper.spotify.exceptions.SpotifyWebApiException;
 
 import image.Cover;
 import util.InvalidPlaylistURLException;
@@ -32,6 +32,7 @@ public abstract class Grabber extends SwingWorker<Void, Void> {
 	@Override
 	protected Void doInBackground() {
 		try {
+			System.out.println("do In background");
 			setProgress(0);
 			getPlaylistInfo();
 			main();
@@ -50,7 +51,7 @@ public abstract class Grabber extends SwingWorker<Void, Void> {
 	}
 
 	public abstract void main()
-			throws IOException, WebApiException, InvalidPlaylistURLException, NoneInPlaylistException;
+			throws IOException, SpotifyWebApiException, InvalidPlaylistURLException, NoneInPlaylistException;
 
 	protected abstract <T> void setPlaylistName(T playlist);
 
@@ -63,6 +64,8 @@ public abstract class Grabber extends SwingWorker<Void, Void> {
 	protected abstract <T> void setNumTrack(T playlist) throws NoneInPlaylistException;
 
 	protected void downloadAlbumsToDirectory(LinkedHashMap<String, String> titleAndImages) throws IOException {
+		System.out.println("download");
+
 		int i = 1;
 		// clear any previously downloaded album art
 		new File(DIRECTORY).mkdirs(); // make sure the DIRECTORY exists
@@ -76,6 +79,7 @@ public abstract class Grabber extends SwingWorker<Void, Void> {
 			// invalid characters
 			String path = DIRECTORY + File.separator + title + ".jpg";
 			File file = new File(path);
+
 			// if this album has already been downloaded, skip it
 			if (file.exists()) {
 				continue;
@@ -90,6 +94,8 @@ public abstract class Grabber extends SwingWorker<Void, Void> {
 			System.out.println("Request URL ... " + url);
 			// normally, 3xx is redirect
 			int status = conn.getResponseCode();
+			image = ImageIO.read(url);
+
 			while (status != HttpURLConnection.HTTP_OK && image == null) {
 				if (status == HttpURLConnection.HTTP_MOVED_TEMP || status == HttpURLConnection.HTTP_MOVED_PERM
 						|| status == HttpURLConnection.HTTP_SEE_OTHER) {

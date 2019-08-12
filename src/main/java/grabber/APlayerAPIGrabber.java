@@ -14,7 +14,7 @@ import java.util.Map;
 
 import org.json.*;
 
-import com.wrapper.spotify.exceptions.WebApiException;
+import com.wrapper.spotify.exceptions.SpotifyWebApiException;
 
 import util.InvalidPlaylistURLException;
 import util.NoneInPlaylistException;
@@ -37,11 +37,10 @@ public class APlayerAPIGrabber extends Grabber {
 	}
 
 	@Override
-	public void main() throws IOException, WebApiException, InvalidPlaylistURLException, NoneInPlaylistException {
+	public void main() throws IOException, SpotifyWebApiException, InvalidPlaylistURLException, NoneInPlaylistException {
 
 		// using api provided by dongyonghui
 		// api description
-		// https://www.dongyonghui.com/default/20180128-ÍøÒ×ÔÆ¡¢¿á¹·¡¢QQÒôÀÖ¸èµ¥½Ó¿ÚAPI.html
 		URL reqUrl = new URL("https://api.hibai.cn/api/index/index");
 
 		// used to be "http://music.163.com/api/playlist/detail?id="

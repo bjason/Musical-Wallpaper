@@ -6,7 +6,7 @@ import java.util.ArrayList;
 /// Utility class to extract userID and playlistID from the playlist URL
 public class PlaylistIDManager {
 	public static final String[] DEFAULT_URL = {
-			"https://open.spotify.com/user/playlistmeukfeatured/playlist/0F2RaOrNectaIorC71tBQJ",
+			"https://open.spotify.com/user/playlistmeukfeatured/playlist/4fvinlRCC1ts2U74tUwwJB",
 			"http://music.163.com/#/playlist?id=498231585",
 			"https://www.youtube.com/playlist?list=PLgnqnloKbnvK6BsJhzfrY8fD_cEYFS6uS",
 			"https://y.qq.com/n/yqq/playlist/3717970005.html",
