@@ -21,7 +21,7 @@ import util.PropertiesManager;
 
 public abstract class Grabber extends SwingWorker<Void, Void> {
     public static int numOfTracks = 0;
-    public static String playlistName;
+    public static String playlistName = "";
     protected final String DIRECTORY = System.getProperty("user.home") + File.separator + "Pictures" + File.separator
             + "Spotify Playlist Visualizor" + File.separator + "Album art";
     protected int sourceId;
@@ -71,27 +71,22 @@ public abstract class Grabber extends SwingWorker<Void, Void> {
     protected abstract <T> void setNumTrack(T playlist) throws NoneInPlaylistException;
 
     protected void downloadAlbumsToDirectory() throws IOException {
-        System.out.println("download");
-
         int i = 1;
         // clear any previously downloaded album art
         new File(DIRECTORY).mkdirs(); // make sure the DIRECTORY exists
-        for (File file : new File(DIRECTORY).listFiles()) {
-            file.delete();
-        }
 
         for (HashMap<String, String> trackInfo : allTracksInfo) {
             // create a file in the DIRECTORY, named after the track
             // String cleanedAlbum = getCleanedFilename(album); // remove
             // invalid characters
             String fileName = Collage.getFileName(trackInfo.get("order"), trackInfo.get("Title"),
-                    trackInfo.get("Artist"), "");
+                    trackInfo.get("Artist"), ".jpg");
 
-            String path = DIRECTORY + File.separator + fileName + ".jpg";
+            String path = DIRECTORY + File.separator + fileName;
             File file = new File(path);
 
             // if this album has already been downloaded, skip it
-            if (file.exists()) {
+            if (file.exists() && !file.isDirectory()) {
                 continue;
             }
 
@@ -159,9 +154,12 @@ public abstract class Grabber extends SwingWorker<Void, Void> {
         return filename.toString();
     }
 
-    void setFileName(LinkedHashMap<String, String> trackNamesAndImages, int order, String suffix, String url,
-                     String trackName, String artistName) {
-        trackNamesAndImages.put(
-                String.format("%03d", order) + ". " + trackName + Cover.ARTIST_SEPARATOR + artistName + suffix, url);
+    protected HashMap<String, String> saveBasicInfo(int i, String trackName, String artistName, String imageUrl) {
+        HashMap<String, String> curr = new HashMap<>();
+        curr.put("order", i + "");
+        curr.put("Title", trackName);
+        curr.put("Artist", artistName);
+        curr.put("url", imageUrl);
+        return curr;
     }
 }

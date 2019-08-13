@@ -9,6 +9,7 @@ import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -83,7 +84,8 @@ public class APlayerAPIGrabber extends Grabber {
 				String artistName = track.getString("author");
 				String imageUrl = track.getString("pic");
 
-				setFileName(titleAndImageNames, i + 1, "", imageUrl, trackName, artistName);
+				HashMap<String, String> curr = saveBasicInfo(i, trackName, artistName, imageUrl);
+				allTracksInfo.add(curr);
 			}
 		} else throw new InvalidPlaylistURLException();
 		downloadAlbumsToDirectory();

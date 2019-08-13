@@ -15,6 +15,7 @@ public class PlaylistIDManager {
     int sourceId;
     String userID = "";
     String playlistID = "";
+    public static String currentURL;
 
     public PlaylistIDManager() {
         // TODO Auto-generated constructor stub
@@ -30,6 +31,8 @@ public class PlaylistIDManager {
     }
 
     public String[] getPlaylistIDAndUserIDFromURL(String URL) throws InvalidPlaylistURLException {
+        currentURL = URL;
+
         if (URL == null || URL.equals("")) {
             throw new InvalidPlaylistURLException();
         }

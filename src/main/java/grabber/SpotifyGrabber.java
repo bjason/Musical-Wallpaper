@@ -2,10 +2,12 @@ package grabber;
 
 import com.wrapper.spotify.SpotifyApi;
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
+import com.wrapper.spotify.exceptions.detailed.TooManyRequestsException;
 import com.wrapper.spotify.model_objects.credentials.ClientCredentials;
 import com.wrapper.spotify.model_objects.specification.*;
 import com.wrapper.spotify.requests.authorization.client_credentials.ClientCredentialsRequest;
 
+import com.wrapper.spotify.requests.data.albums.GetAlbumRequest;
 import com.wrapper.spotify.requests.data.playlists.GetPlaylistRequest;
 import com.wrapper.spotify.requests.data.playlists.GetPlaylistsTracksRequest;
 import ui.VisualizorUI;
@@ -13,13 +15,7 @@ import util.InvalidPlaylistURLException;
 import util.NoneInPlaylistException;
 import util.PropertiesManager;
 
-import javax.imageio.ImageIO;
-import javax.swing.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URL;
 import java.util.*;
 
 /// Downloads the album art for each song in the playlist
@@ -31,8 +27,10 @@ public class SpotifyGrabber extends Grabber {
     private final String clientID = "c4d868dd2f78422a8b1871e42c8e141b";
     private final String clientSecret = "7f8ec31bcc1345708e94f427be4ffc40";
 
-    private SpotifyApi getAuthorisedAPI() throws IOException, SpotifyWebApiException {
-        final SpotifyApi spotifyApi = new SpotifyApi.Builder()
+    private SpotifyApi spotifyApi;
+
+    private void getAuthorisedAPI() throws IOException, SpotifyWebApiException {
+        spotifyApi = new SpotifyApi.Builder()
                 .setClientId(clientID)
                 .setClientSecret(clientSecret)
                 .build();
@@ -43,8 +41,6 @@ public class SpotifyGrabber extends Grabber {
 
         // Set access token for further "spotifyApi" object usage
         spotifyApi.setAccessToken(clientCredentials.getAccessToken());
-
-        return spotifyApi;
     }
 
     // the error code is to get around SwingWorkers not using exception throwing
@@ -52,117 +48,122 @@ public class SpotifyGrabber extends Grabber {
 
     public void main() throws IOException,
             SpotifyWebApiException, InvalidPlaylistURLException, NoneInPlaylistException {
-        SpotifyApi api = getAuthorisedAPI();
-        LinkedHashMap<String, String> trackNamesAndImageURLs = getAlbumImagesInPlaylist(api);
-
+        setProgress(0);
+        getAuthorisedAPI();
+        getAlbumImagesInPlaylist();
         downloadAlbumsToDirectory();
         // setProgress(40); // move the progress bar a bit
     }
 
+    private int processedNumber;
+
     /// Returns a HashMap mapping track names and artist
     /// to their biggest image's URL, for each aslbum in the given playlist
-    // TODO change the HASHMAP to List so that the serial order doens't have to
-    /// appear in the track name
-    private LinkedHashMap<String, String> getAlbumImagesInPlaylist(SpotifyApi spotifyApi)
+    private void getAlbumImagesInPlaylist()
             throws IOException, SpotifyWebApiException, NoneInPlaylistException {
-        LinkedHashMap<String, String> trackNamesAndImages = new LinkedHashMap<>();
-        allTracksInfo = new ArrayList<>();
+        int loopsRequired;
 
-        GetPlaylistRequest getPlaylistRequest = spotifyApi.getPlaylist(playlistId)
-                .build();
+        if (allTracksInfo == null) {
+            allTracksInfo = new ArrayList<>();
 
-        Playlist playlist = getPlaylistRequest.execute();
-        System.out.println("Name: " + playlist.getName());
+            GetPlaylistRequest getPlaylistRequest = spotifyApi.getPlaylist(playlistId)
+                    .build();
 
-        // Spotify enforces a maximum of 100 tracks retrieved from a playlist
-        // per request.
-        // Therefore this method executes multiple requests in the following for
-        // loop
+            Playlist playlist = getPlaylistRequest.execute();
+            System.out.println("Name: " + playlist.getName());
 
-        // calculate the number of loops required to get all of the tracks from
-        // the playlist
-        setNumTrack(playlist);
-        setPlaylistName(playlist);
+            // Spotify enforces a maximum of 100 tracks retrieved from a playlist
+            // per request.
+            // Therefore this method executes multiple requests in the following for
+            // loop
 
-        int loopsRequired = numOfTracks / 100 + 1; // round up
-        int j = 1;
+            // calculate the number of loops required to get all of the tracks from
+            // the playlist
+            setNumTrack(playlist);
+            setPlaylistName(playlist);
+
+            processedNumber = 0;
+        }
+
+        VisualizorUI.progressBar.setString("Downloading covers... (Total: " + numOfTracks + ")");
+
+        int tracksToBeProcessed = numOfTracks - processedNumber;
+        loopsRequired = tracksToBeProcessed / 100 + 1; // round up
 
         for (int i = 0; i < loopsRequired; i++) {
             GetPlaylistsTracksRequest getPlaylistsTracksRequest = spotifyApi.getPlaylistsTracks(playlistId)
 //                  .fields("description")
                     .limit(MAX_TRACKS_FROM_PLAYLIST)
-                    .offset(i * MAX_TRACKS_FROM_PLAYLIST)
+                    .offset(processedNumber)
 //                  .market(CountryCode.SE)
                     .build();
 
-            Paging<PlaylistTrack> playlistTrackPaging = getPlaylistsTracksRequest.execute();
-
-            for (PlaylistTrack playlistTrack :
-                    playlistTrackPaging.getItems()) {
-                Track track = playlistTrack.getTrack();
-
-                AlbumSimplified album = track.getAlbum();
-                // use IMAGE_NUMBER to select the desired resolution
-                int imageNum = Integer.parseInt(PropertiesManager.getProperty("imageSizeCode"));
-                if (imageNum > 2) {
-                    imageNum = 1;
+            Paging<PlaylistTrack> playlistTrackPaging = null;
+            try {
+                playlistTrackPaging = getPlaylistsTracksRequest.execute();
+            } catch (TooManyRequestsException e) {
+                try {
+                    Thread.sleep(e.getRetryAfter() * 1000);
+                    System.out.println(e.getMessage() + " sleep for " + e.getRetryAfter());
+                    playlistTrackPaging = getPlaylistsTracksRequest.execute();
+                } catch (Exception ex) {
+                    System.out.println(ex.getMessage());
                 }
-                getURLFromAPI(trackNamesAndImages, j, track, album, imageNum, "");
-                j++;
+            }
 
-                setProgress((int) (20 * ((float) j / numOfTracks)));
-                VisualizorUI.progressBar.setString("Downloading album art... (Total: " + numOfTracks + ")");
+            if (playlistTrackPaging != null) {
+                for (PlaylistTrack playlistTrack : playlistTrackPaging.getItems()) {
+                    Track track = playlistTrack.getTrack();
+
+                    AlbumSimplified album = track.getAlbum();
+                    // use IMAGE_NUMBER to select the desired resolution
+                    int imageNum = Integer.parseInt(PropertiesManager.getProperty("imageSizeCode"));
+                    if (imageNum > 2) {
+                        imageNum = 1;
+                    }
+                    processedNumber++;
+                    getURLFromAPI(processedNumber, track, album, imageNum);
+
+                    setProgress((int) (20 * ((float) processedNumber / numOfTracks)));
+                }
             }
         }
-
-        return trackNamesAndImages;
-
-        /*
-
-         for (int i = 0; i <= loopsRequired; i++) {
-            PlaylistTracksRequest playlistTracksRequest = api.getPlaylistTracks(userID, playlistID)
-                    .limit(MAX_TRACKS_FROM_PLAYLIST) // maximum number of tracks
-                    // to return
-                    // if this isn't the first loop, don't start at the top of
-                    // the playlist
-                    .offset(i * MAX_TRACKS_FROM_PLAYLIST).build();
-
-            List<PlaylistTrack> tracks = playlistTracksRequest.get().getItems();
-            for (PlaylistTrack track : tracks) {
-                SimpleAlbum album = track.getTrack().getAlbum();
-                // use IMAGE_NUMBER to select the desired resolution
-                int imageNum = Integer.parseInt(PropertiesManager.getProperty("imageSizeCode"));
-                if (imageNum > 2) {
-                    imageNum = 1;
-                }
-                getURLFromAPI(trackNamesAndImages, j, track, album, imageNum, "");
-                j++;
-
-                setProgress((int) 20 * j / numOfTracks);
-            }
-        }
-        */
+        Collections.reverse(allTracksInfo);
     }
 
-    private void getURLFromAPI(LinkedHashMap<String, String> trackNamesAndImages, int order, Track track,
-                               AlbumSimplified album, int imageNum, String suffix) {
-        String url = album.getImages()[imageNum].getUrl();
-        // albumNamesAndImages.put(album.getName(), url);
-        // TODO fix this getartist problem
+    private void getURLFromAPI(int order, Track track,
+                               AlbumSimplified albumSimplified, int imageNum)
+            throws IOException, SpotifyWebApiException {
+        String url = albumSimplified.getImages()[imageNum].getUrl();
+
+        Album album = null;
+        GetAlbumRequest getAlbumRequest = spotifyApi.getAlbum(albumSimplified.getId()).build();
+        try {
+            album = getAlbumRequest.execute();
+        } catch (TooManyRequestsException e) {
+            try {
+                Thread.sleep(e.getRetryAfter() * 1000);
+                System.out.println(e.getMessage() + " sleep for " + e.getRetryAfter());
+                album = getAlbumRequest.execute();
+            } catch (Exception ex) {
+                System.out.println(ex.getMessage());
+            }
+        }
+
+        String releaseDate = album.getReleaseDate();
+        String label = album.getLabel();
+
         String trackTitle = track.getName();
         String artistName = track.getArtists()[0].getName();
-        String trackName_forSave = trackTitle.replaceAll("[\\\\/:*?\"<>|]", "_");
-        String artistName_forSave = artistName.replaceAll("[\\\\/:*?\"<>|]", "_");
+//        String trackName_forSave = trackTitle.replaceAll("[\\\\/:*?\"<>|]", "_");
+//        String artistName_forSave = artistName.replaceAll("[\\\\/:*?\"<>|]", "_");
 
-        HashMap<String, String> curr = new HashMap<>();
-        curr.put("order", order + "");
-        curr.put("Title", trackTitle);
-        curr.put("Artist", artistName);
-        curr.put("url", url);
+        HashMap<String, String> curr = saveBasicInfo(order, trackTitle, artistName, url);
+        curr.put("ReleaseDate", releaseDate);
+        curr.put("Label", label);
 
         allTracksInfo.add(curr);
-
-        setFileName(trackNamesAndImages, order, suffix, url, trackName_forSave, artistName_forSave);
+//        setFileName(trackNamesAndImages, order, suffix, url, trackName_forSave, artistName_forSave);
     }
 
 

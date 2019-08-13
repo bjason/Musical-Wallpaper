@@ -258,7 +258,7 @@ public class VisualizorUI extends JFrame {
 
 		// TODO add and modify trackProcessing label
 		private void beginLoading() throws NumberFormatException, IOException {
-			progressBar.setString("Downloading album art...");
+//			progressBar.setString("Downloading album art...");
 
 			int sourceId = Integer.parseInt(PropertiesManager.getProperty("sourceId"));
 			Grabber grabber = null;

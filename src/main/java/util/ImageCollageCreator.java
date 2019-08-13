@@ -65,11 +65,8 @@ public class ImageCollageCreator extends SwingWorker<Void, Void> {
 		String[] thisCollageImages = null;
 		File outputFile = null;
 
-		// first delete any previously saved collages
-		delPrevCollgs();
-
 		ArrayList<String> allImages = getImageFilenames(sourceDir);
-		numTracks = allImages.size();
+		numTracks = Grabber.numOfTracks;
 
 		switch (imageSizeCode) {
 		case 0:
@@ -81,12 +78,13 @@ public class ImageCollageCreator extends SwingWorker<Void, Void> {
 			break;
 		case 3:
 			// Chart Mode
-			Collections.reverse(allImages);
+//			Collections.reverse(allImages);
 			// make the playlist a countdown
+
 
 //			thisCollageImages = getCollageImagesNames(allImages, numTracks);
 			int collage_x = size + Cover.DETAIL_X;
-			int collage_y = size * numTracks;
+			int collage_y = size * numTracks + ChartCollage.FOOTER_HEIGHT + ChartCollage.TITLE_HEIGHT;
 
 			collage = new ChartCollage(collage_x, collage_y, this);
 			collage.setCoverSize(size, size);
@@ -109,6 +107,7 @@ public class ImageCollageCreator extends SwingWorker<Void, Void> {
 	}
 
 	private void drawAndSave(Collage collage, String[] thisCollageImages, File outputFile) throws IOException {
+		delPrevCollgs(outputFile);
 		collage.drawImages(thisCollageImages).createAndSaveCollage(outputFile);
 	}
 
@@ -234,11 +233,10 @@ public class ImageCollageCreator extends SwingWorker<Void, Void> {
 		}
 	}
 
-	private void delPrevCollgs() {
+	private void delPrevCollgs(File file) {
 		new File(outputDir).mkdirs(); // create the folders if they don't exist
-		for (File file : new File(outputDir).listFiles()) {
+		if (file.exists() && !file.isDirectory())
 			file.delete();
-		}
 	}
 
 	public void publicSetProgress(int prog) {

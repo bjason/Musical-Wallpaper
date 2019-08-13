@@ -9,7 +9,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.*;
 
 import javax.imageio.ImageIO;
 
@@ -75,8 +75,15 @@ public class Cover {
 
     final private static int DRAWSTRING_TITLE = 0;
     final private static int DRAWSTRING_ARTIST = 1;
-    final private static int x_title = 10, x_artist = 30, y_title = 150, y_artist = 240;
-    final private static int TITLE_SIZE = 70, ARTIST_SIZE = 40;
+    final private static int DRAWSTRING_YEAR = 2;
+    final private static int DRAWSTRING_LABEL = 3;
+    final private static int[] drawing_x = new int[]{10, 20, 20, 20};
+    final private static int[] drawing_y = new int[]{180, 270, 230, 295};
+    final private static int[] SIZE = new int[]{70, 40, 40, 15};
+    final public static String EN_FONT = "Constantia";
+    final public static String NUM_FONT = "Constantia";
+    final public static String CN_FONT = "FZYaSongS-M-GB";
+    private Color mainColor;
 
     private Graphics2D background;
 
@@ -87,7 +94,6 @@ public class Cover {
         //
         // background.setBackground(Color.WHITE);
 
-        // //TODO background.setColor(getMainColor());
         background.setColor(Color.WHITE);
         background.fillRect(0, 0, DETAIL_X, IMAGE_Y);
         background.dispose();
@@ -96,8 +102,8 @@ public class Cover {
         // draw rank and name
         background = section.createGraphics();
         background.setColor(Color.GRAY);
-        background.setFont(new Font("Constantia", Font.BOLD, 150));
-        background.drawString(str[0], 10, 100);
+        background.setFont(new Font(EN_FONT, Font.BOLD, 180));
+        background.drawString(str[0], 10, 140);
 
         DrawString(str[1], DRAWSTRING_TITLE);
 
@@ -105,7 +111,7 @@ public class Cover {
 
         // artist name
         background.setColor(Color.BLACK);
-        background.setFont(new Font("Constantia", Font.ITALIC, 40));
+        background.setFont(new Font(EN_FONT, Font.ITALIC, 40));
         background.drawString(getArtistName(), 30, 220);
 
         background.dispose();
@@ -117,8 +123,8 @@ public class Cover {
         background = section.createGraphics();
         //
         // background.setBackground(Color.WHITE);
+        mainColor = getMainColor();
 
-        // //TODO background.setColor(getMainColor());
         background.setColor(Color.WHITE);
         background.fillRect(0, 0, DETAIL_X, IMAGE_Y);
         background.dispose();
@@ -126,13 +132,21 @@ public class Cover {
         // draw text on the image
         // draw rank and name
         background = section.createGraphics();
-        background.setColor(Color.GRAY);
-        background.setFont(new Font("Constantia", Font.BOLD, 150));
-        background.drawString(trackInfo.get("order"), 10, 100);
+        background.setColor(Color.lightGray);
+        background.setFont(new Font(NUM_FONT, Font.BOLD, 180));
+        background.drawString(trackInfo.get("order"), 10, 120);
 
         DrawString(trackInfo.get("Title"), DRAWSTRING_TITLE);
 
         DrawString(trackInfo.get("Artist"), DRAWSTRING_ARTIST);
+
+        if (trackInfo.containsKey("ReleaseDate")) {
+            DrawString(trackInfo.get("ReleaseDate"), DRAWSTRING_YEAR);
+        }
+
+//        if (trackInfo.containsKey("Label")) {
+//            DrawString(trackInfo.get("Label"), DRAWSTRING_LABEL);
+//        }
 
         background.dispose();
         return section;
@@ -145,23 +159,40 @@ public class Cover {
         int size;
 
         final int x, y;
-        if (id == DRAWSTRING_TITLE) // 0 for title
-        {
-            x = x_title;
-            y = y_title;
-            size = TITLE_SIZE;
-            en_font = new Font("Constantia", Font.BOLD, size);
-            cn_font = new Font("FZYaSongS-M-GB", Font.BOLD, size);
-        } else { // 1 for artist
-            x = x_artist;
-            y = y_artist;
-            size = ARTIST_SIZE;
-            en_font = new Font("Constantia", Font.ITALIC, size);
-            cn_font = new Font("FZYaSongS-M-GB", Font.ITALIC, size);
+        x = drawing_x[id];
+        y = drawing_y[id];
+        size = SIZE[id];
+
+        if (str.trim() == "烏雲典當記 / An Adventure in The Dark Clouds Market") {
+            str = "大石碎胸口";
         }
 
+        switch (id) {
+            case DRAWSTRING_TITLE:
+                en_font = new Font(EN_FONT, Font.BOLD, size);
+                cn_font = new Font(CN_FONT, Font.BOLD, size);
+                background.setColor(getDarkerColor(mainColor));
+                break;
+            case DRAWSTRING_ARTIST:
+                en_font = new Font(EN_FONT, Font.ITALIC, size);
+                cn_font = new Font(CN_FONT, Font.ITALIC, size);
+                background.setColor(Color.BLACK);
+                break;
+            case DRAWSTRING_LABEL:
+                en_font = new Font(EN_FONT, Font.PLAIN, size);
+                cn_font = new Font(CN_FONT, Font.PLAIN, size);
+                background.setColor(Color.GRAY);
+                str = "(c)" + str;
+                break;
+            default:
+                en_font = new Font(EN_FONT, Font.ITALIC, size);
+                cn_font = new Font(CN_FONT, Font.ITALIC, size);
+                background.setColor(Color.GRAY);
 
-        background.setColor(Color.BLACK);
+                String[] strs = str.split("-");
+                str = "(" + strs[0] + ")";
+        }
+
         int cn_pos = findChineseChar(str, 0);
         int en_pos = findEnglishChar(str, 0);
         int width = 0;
@@ -179,7 +210,6 @@ public class Cover {
             // there are chinese char
             // draw english char first
             if (en_pos < cn_pos) {
-                if (en_pos == -1) en_pos = 0;
                 String en_str = str.substring(en_pos, cn_pos);
                 background.setFont(en_font);
                 background.drawString(en_str, x + width, y);
@@ -189,7 +219,6 @@ public class Cover {
                 en_pos = findEnglishChar(str, cn_pos);
             } else {
                 // draw chinese char
-                if (cn_pos == -1) cn_pos = 0;
                 String cn_str = str.substring(cn_pos, en_pos);
                 background.setFont(cn_font);
                 background.drawString(cn_str, x + width, y);
@@ -199,6 +228,28 @@ public class Cover {
                 cn_pos = findChineseChar(str, en_pos);
             }
         }
+    }
+
+    // https://stackoverflow.com/questions/3116260/given-a-background-color-how-to-get-a-foreground-color-that-makes-it-readable-o
+    private float CalculateLuminance(Color c) {
+        return (float) (0.2126 * c.getRed() + 0.7152 * c.getGreen() + 0.0722 * c.getBlue());
+    }
+
+    private ArrayList<Integer> HexToRBG(String colorStr) {
+        ArrayList<Integer> rbg = new ArrayList<Integer>();
+        rbg.add(Integer.valueOf(colorStr.substring(1, 3), 16));
+        rbg.add(Integer.valueOf(colorStr.substring(3, 5), 16));
+        rbg.add(Integer.valueOf(colorStr.substring(5, 7), 16));
+        return rbg;
+    }
+
+    public Color getDarkerColor(Color c) {
+        float luminance = this.CalculateLuminance(c);
+        while (luminance > 200) {
+            c = c.darker();
+            luminance = this.CalculateLuminance(c);
+        }
+        return c;
     }
 
     public String[] getRankAndTrackName() {
@@ -262,40 +313,46 @@ public class Cover {
         return s.replaceAll("^\\P{IsHan}+", "");
     }
 
-    // private Color getMainColor() {
-    // Map m = new HashMap();
-    // for (int i = 0; i < IMAGE_X; i++) {
-    // for (int j = 0; j < IMAGE_Y; j++) {
-    // int rgb = image.getRGB(i, j);
-    // int[] rgbArr = getRGBArr(rgb);
-    // // Filter out grays....
-    // if (!isGray(rgbArr)) {
-    // Integer counter = (Integer) m.get(rgb);
-    // if (counter == null)
-    // counter = 0;
-    // counter++;
-    // m.put(rgb, counter);
-    // }
-    // }
-    // }
-    // String colourHex = getMostCommonColour(m);
-    // System.out.println(colourHex);
-    // return null;
-    // }
+    private Color getMainColor() {
+        Map m = new HashMap();
+        for (int i = 0; i < IMAGE_X; i++) {
+            for (int j = 0; j < IMAGE_Y; j++) {
+                int rgb = image.getRGB(i, j);
+                int[] rgbArr = getRGBArr(rgb);
+                // Filter out grays....
+                if (!isGray(rgbArr)) {
+                    Integer counter = (Integer) m.get(rgb);
+                    if (counter == null)
+                        counter = 0;
+                    counter++;
+                    m.put(rgb, counter);
+                }
+            }
+        }
+        Color color = getMostCommonColour(m);
+//        Color color = new Color();
+        return color;
+    }
 
-    // public static String getMostCommonColour(Map map) {
-    // LinkedList list = new LinkedList(map.entrySet());
-    // Collections.sort(list, new Comparator() {
-    // public int compare(Object o1, Object o2) {
-    // return ((Comparable) ((Map.Entry)
-    // (o1)).getValue()).compareTo(((Map.Entry) (o2)).getValue());
-    // }
-    // });
-    // Map.Entry me = (Map.Entry) list.get(list.size() - 1);
-    // int[] rgb = getRGBArr((Integer) me.getKey());
-    // return Integer.toHexString(rgb[0]) + " " + Integer.toHexString(rgb[1]) +
-    // " " + Integer.toHexString(rgb[2]);
-    // }
+    public static Color getMostCommonColour(Map map) {
+        try {
+            LinkedList list = new LinkedList(map.entrySet());
+            Collections.sort(list, new Comparator() {
+                public int compare(Object o1, Object o2) {
+                    return ((Comparable) ((Map.Entry)
+                            (o1)).getValue()).compareTo(((Map.Entry) (o2)).getValue());
+                }
+            });
+            Map.Entry me = (Map.Entry) list.get(list.size() - 1);
+            int[] rgb = getRGBArr((Integer) me.getKey());
+            return new Color(rgb[0], rgb[1], rgb[2]);
+//        return Integer.toHexString(rgb[0]) + " " + Integer.toHexString(rgb[1]) +
+//                " " + Integer.toHexString(rgb[2]);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return Color.BLACK;
+        }
+    }
 
     public static int[] getRGBArr(int pixel) {
         int alpha = (pixel >> 24) & 0xff;
@@ -303,7 +360,6 @@ public class Cover {
         int green = (pixel >> 8) & 0xff;
         int blue = (pixel) & 0xff;
         return new int[]{red, green, blue};
-
     }
 
     public static boolean isGray(int[] rgbArr) {

@@ -106,8 +106,7 @@ public class YouTubeGrabber extends Grabber {
 					.replace(" [Official Video]", "").replace(" (Official Music Video)", "");
 			
 			String url = item.getSnippet().getThumbnails().getMaxres().getUrl();
-			
-			setFileName(titleAndImageNames, order, "", url, trackName, artistName);
+
 			order++;
 		}
 		setNumTrack(order);
