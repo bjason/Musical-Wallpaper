@@ -22,7 +22,7 @@ public class Cover {
     private String artistName;
     public int IMAGE_X;
     public int IMAGE_Y;
-    public final static int DETAIL_X = 2000;
+    public final static int DETAIL_X = 1000;
     public final static String ARTIST_SEPARATOR = " - ";
 
     public Cover(BufferedImage image, String name) {
@@ -42,7 +42,7 @@ public class Cover {
         String dir;
         this.name = name;
 
-        dir = ImageCollageCreator.sourceDir + File.separator + name + ".jpg";
+        dir = ImageCollageCreator.sourceDir + File.separator + name;
         this.image = getImage(dir);
 
         setSize();
@@ -87,38 +87,7 @@ public class Cover {
 
     private Graphics2D background;
 
-    public BufferedImage createDetailSection() {
-        BufferedImage section = new BufferedImage(DETAIL_X, IMAGE_Y, BufferedImage.TYPE_INT_RGB);
-        background = section.createGraphics();
-        String[] str = getRankAndTrackName();
-        //
-        // background.setBackground(Color.WHITE);
-
-        background.setColor(Color.WHITE);
-        background.fillRect(0, 0, DETAIL_X, IMAGE_Y);
-        background.dispose();
-
-        // draw text on the image
-        // draw rank and name
-        background = section.createGraphics();
-        background.setColor(Color.GRAY);
-        background.setFont(new Font(EN_FONT, Font.BOLD, 180));
-        background.drawString(str[0], 10, 140);
-
-        DrawString(str[1], DRAWSTRING_TITLE);
-
-        DrawString(getArtistName(), DRAWSTRING_ARTIST);
-
-        // artist name
-        background.setColor(Color.BLACK);
-        background.setFont(new Font(EN_FONT, Font.ITALIC, 40));
-        background.drawString(getArtistName(), 30, 220);
-
-        background.dispose();
-        return section;
-    }
-
-    public BufferedImage createDetailSection(HashMap<String, String> trackInfo) {
+    public BufferedImage createDetailSection(HashMap<String, String> trackInfo, int order) {
         BufferedImage section = new BufferedImage(DETAIL_X, IMAGE_Y, BufferedImage.TYPE_INT_RGB);
         background = section.createGraphics();
         //
@@ -134,25 +103,25 @@ public class Cover {
         background = section.createGraphics();
         background.setColor(Color.lightGray);
         background.setFont(new Font(NUM_FONT, Font.BOLD, 180));
-        background.drawString(trackInfo.get("order"), 10, 120);
+        background.drawString(order + "", 10, 120);
 
-        DrawString(trackInfo.get("Title"), DRAWSTRING_TITLE);
+        resizeFontToDrawString(trackInfo.get("Title"), DRAWSTRING_TITLE);
 
-        DrawString(trackInfo.get("Artist"), DRAWSTRING_ARTIST);
+        resizeFontToDrawString(trackInfo.get("Artist"), DRAWSTRING_ARTIST);
 
         if (trackInfo.containsKey("ReleaseDate")) {
-            DrawString(trackInfo.get("ReleaseDate"), DRAWSTRING_YEAR);
+            resizeFontToDrawString(trackInfo.get("ReleaseDate"), DRAWSTRING_YEAR);
         }
 
 //        if (trackInfo.containsKey("Label")) {
-//            DrawString(trackInfo.get("Label"), DRAWSTRING_LABEL);
+//            resizeFontToDrawString(trackInfo.get("Label"), DRAWSTRING_LABEL);
 //        }
 
         background.dispose();
         return section;
     }
 
-    private void DrawString(String str, int id) {
+    private void resizeFontToDrawString(String str, int id) {
         FontRenderContext frc = new FontRenderContext(new AffineTransform(), true, true);
         final Font en_font;
         final Font cn_font;
@@ -162,10 +131,6 @@ public class Cover {
         x = drawing_x[id];
         y = drawing_y[id];
         size = SIZE[id];
-
-//        if (str.contains("An Adventure in The Dark Clouds Market")) {
-//            str = "大石碎胸口";
-//        }
 
         switch (id) {
             case DRAWSTRING_TITLE:
@@ -198,8 +163,12 @@ public class Cover {
         int width = 0;
 
         if (cn_pos == -1) {
-            background.setFont(en_font);
-            background.drawString(str, x, y);
+            resizeFontToDrawString(str, frc, en_font, x, y);
+
+            return;
+        }
+        if (en_pos == -1) {
+            resizeFontToDrawString(str, frc, cn_font, x, y);
 
             return;
         }
@@ -211,9 +180,10 @@ public class Cover {
             // draw english char first
             if (en_pos < cn_pos) {
                 String en_str = str.substring(en_pos, cn_pos);
+                width += (int) en_font.getStringBounds(en_str, frc).getWidth();
+
                 background.setFont(en_font);
                 background.drawString(en_str, x + width, y);
-                width += (int) en_font.getStringBounds(en_str, frc).getWidth();
 
                 cn_pos = findChineseChar(str, en_pos + 1);
                 en_pos = findEnglishChar(str, cn_pos);
@@ -228,6 +198,34 @@ public class Cover {
                 cn_pos = findChineseChar(str, en_pos);
             }
         }
+    }
+
+    private void resizeFontToDrawString(String str, FontRenderContext frc, Font font, int x, int y) {
+        final String ellipsis = "...";
+
+        int width = (int) font.getStringBounds(str, frc).getWidth();
+        Font newFont = font;
+
+        for (int i = 0; i < 2; i++) {
+            if (width > DETAIL_X - x * 2) {
+                newFont = newFont.deriveFont((float)newFont.getSize() * 0.9f);
+                width = (int) newFont.getStringBounds(str, frc).getWidth();
+            }
+        }
+
+        if (width > DETAIL_X - x * 2) {
+            str = str.substring(0, str.length() - 4) + ellipsis;
+            width = (int) newFont.getStringBounds(str, frc).getWidth();
+            int ellipsisLen = (int) newFont.getStringBounds(ellipsis, frc).getWidth();
+
+            while (width > DETAIL_X - x * 2 - ellipsisLen) {
+                str = str.substring(0, str.length() - 4) + ellipsis;
+                width = (int) newFont.getStringBounds(str, frc).getWidth();
+            }
+        }
+
+        background.setFont(newFont);
+        background.drawString(str, x, y);
     }
 
     // https://stackoverflow.com/questions/3116260/given-a-background-color-how-to-get-a-foreground-color-that-makes-it-readable-o
@@ -381,10 +379,17 @@ public class Cover {
 
         try {
             result = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
-            Graphics2D g2d = (Graphics2D) result.createGraphics();
+            Graphics2D g2d = result.createGraphics();
+
+            // set background to white
+//            g2d.setPaint(Color.WHITE);
+//            g2d.drawRect(0, 0, WIDTH, HEIGHT);
+
+            int diff_y = (int) ((HEIGHT - IMAGE_Y) / 2f);
+
             g2d.addRenderingHints(
                     new RenderingHints(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY));
-            g2d.drawImage(image, 0, 0, WIDTH, HEIGHT, null);
+            g2d.drawImage(image, 0, diff_y, IMAGE_X, IMAGE_Y, null);
         } catch (Exception e) {
             e.printStackTrace();
             return null;

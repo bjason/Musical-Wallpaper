@@ -33,37 +33,37 @@ public class ChartCollage extends Collage {
         int x = 0;
         int y = TITLE_HEIGHT;
         int i = 0;
-        int imageWidth = 0;
 
         for (HashMap<String, String> image : inputImages) {
-            String fileName = getFileName(image, "");
+            String fileName = getFileName(image, ".jpg");
             Cover cover = doResize(new Cover(fileName));
 
             g.drawImage(cover.getImage(), x, y, null);
             x += cover.IMAGE_X;
-            imageWidth = cover.IMAGE_X;
 
             // draw detail section bar
-            g.drawImage(cover.createDetailSection(image), x, y, null);
+            g.drawImage(cover.createDetailSection(image, Grabber.numOfTracks - i), x, y, null);
 
             x = 0;
             y += cover.IMAGE_Y;
+
+            i++;
             setProgress((int) (50 + i * ((float) 50 / inputImages.size())));
         }
 
-        drawTitle(imageWidth);
-        drawFooter(imageWidth);
+        drawTitle();
+        drawFooter();
 
         return this;
     }
 
-    private void drawTitle(int imageWidth) {
+    private void drawTitle() {
         String title = Grabber.playlistName;
-        BufferedImage section = new BufferedImage(Cover.DETAIL_X + imageWidth, TITLE_HEIGHT, BufferedImage.TYPE_INT_RGB);
+        BufferedImage section = new BufferedImage(COLLAGE_X, TITLE_HEIGHT, BufferedImage.TYPE_INT_RGB);
         Graphics2D background = section.createGraphics();
 
         background.setColor(Color.WHITE);
-        background.fillRect(0, 0, Cover.DETAIL_X + imageWidth, TITLE_HEIGHT);
+        background.fillRect(0, 0, COLLAGE_X, TITLE_HEIGHT);
         background.dispose();
 
         background = section.createGraphics();
@@ -74,12 +74,12 @@ public class ChartCollage extends Collage {
         g.drawImage(section, 0, 0, null);
     }
 
-    private void drawFooter(int imageWidth) {
-        BufferedImage section = new BufferedImage(Cover.DETAIL_X + imageWidth, FOOTER_HEIGHT, BufferedImage.TYPE_INT_RGB);
+    private void drawFooter() {
+        BufferedImage section = new BufferedImage(COLLAGE_X, FOOTER_HEIGHT, BufferedImage.TYPE_INT_RGB);
         Graphics2D background = section.createGraphics();
 
         background.setColor(Color.white);
-        background.fillRect(0, 1, Cover.DETAIL_X + imageWidth, FOOTER_HEIGHT);
+        background.fillRect(0, 1, COLLAGE_X, FOOTER_HEIGHT);
         background.dispose();
 
         background = section.createGraphics();
@@ -91,27 +91,5 @@ public class ChartCollage extends Collage {
         background.drawString(urlInfo, 10, 50);
 
         g.drawImage(section, 0, COLLAGE_Y - FOOTER_HEIGHT, null);
-    }
-
-    public Collage drawImages(String[] inputImages) throws IOException {
-        Graphics g = getGraphics();
-
-        int x = 0;
-        int y = 0;
-        int i = 0;
-        for (String image : inputImages) {
-            Cover cover = doResize(new Cover(image));
-
-            g.drawImage(cover.getImage(), x, y, null);
-            x += cover.IMAGE_X;
-
-            // draw detail section bar
-            g.drawImage(cover.createDetailSection(), x, y, null);
-
-            x = 0;
-            y += cover.IMAGE_Y;
-            setProgress(50 + i * (50 / inputImages.length));
-        }
-        return this;
     }
 }

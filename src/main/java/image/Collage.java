@@ -69,22 +69,21 @@ public class Collage extends BufferedImage {
 	}
 
 	protected Cover doResize(Cover cover) {
-		if (COVER_X != 0 && COVER_Y != 0 && COVER_X != cover.IMAGE_X && COVER_Y != cover.IMAGE_Y) {
+		if (COVER_X != 0 && COVER_Y != 0 && (COVER_X != cover.IMAGE_X || COVER_Y != cover.IMAGE_Y)) {
 			return cover.resizeTo(COVER_X, COVER_Y);
 		} else
 			return cover;
 	}
 
-	public static String getFileName(String order, String title, String artistName, String suffix){
+	public static String getFileName(String title, String artistName, String suffix){
 		title = title.replaceAll("[\\\\/:*?\"<>|]", "_");
 		artistName = artistName.replaceAll("[\\\\/:*?\"<>|]", "_");
-		return order + ". " + title + Cover.ARTIST_SEPARATOR + artistName + suffix;
+		return title + Cover.ARTIST_SEPARATOR + artistName + suffix;
 	}
 
 	public static String getFileName(HashMap<String, String> trackInfo, String suffix){
-		String title = trackInfo.get("Title").replaceAll("[\\\\/:*?\"<>|]", "_");
-		String artistName = trackInfo.get("Artist").replaceAll("[\\\\/:*?\"<>|]", "_");
-		String order = trackInfo.get("order");
-		return order + ". " + title + Cover.ARTIST_SEPARATOR + artistName + suffix;
+		String title = trackInfo.get("Title");
+		String artistName = trackInfo.get("Artist");
+		return getFileName(title, artistName, suffix);
 	}
 }

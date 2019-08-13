@@ -79,7 +79,7 @@ public abstract class Grabber extends SwingWorker<Void, Void> {
             // create a file in the DIRECTORY, named after the track
             // String cleanedAlbum = getCleanedFilename(album); // remove
             // invalid characters
-            String fileName = Collage.getFileName(trackInfo.get("order"), trackInfo.get("Title"),
+            String fileName = Collage.getFileName(trackInfo.get("Title"),
                     trackInfo.get("Artist"), ".jpg");
 
             String path = DIRECTORY + File.separator + fileName;

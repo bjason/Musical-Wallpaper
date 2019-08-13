@@ -131,7 +131,17 @@ public class SpotifyGrabber extends Grabber {
                 }
             }
         }
+//        addTrackManually("2010", "Good Intentions Paving Company","Joanna Newsom", 10);
+
         Collections.reverse(allTracksInfo);
+    }
+
+    private void addTrackManually(String releaseDate, String trackTitle, String artistName, int order ) {
+        HashMap<String, String> curr = saveBasicInfo(order, trackTitle, artistName, "");
+        curr.put("ReleaseDate", releaseDate);
+
+        allTracksInfo.add(order - 1, curr);
+        numOfTracks++;
     }
 
     private void getURLFromAPI(int order, Track track,
@@ -146,9 +156,8 @@ public class SpotifyGrabber extends Grabber {
         } catch (TooManyRequestsException e) {
             try {
                 synchronized (this) {
-                    wait(e.getRetryAfter() * 1000);
-//                    Thread.sleep();
                     System.out.println(e.getMessage() + " sleep for " + e.getRetryAfter());
+                    wait(e.getRetryAfter() * 1000);
                     album = getAlbumRequest.execute();
                 }
             } catch (Exception ex) {
