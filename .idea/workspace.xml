@@ -7,19 +7,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d3aa93f8-430b-412d-a721-fa0ef9434bc9" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/META-INF/MANIFEST.MF" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/META-INF/MANIFEST.MF" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/grabber/APlayerAPIGrabber.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/grabber/APlayerAPIGrabber.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/grabber/Grabber.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/grabber/Grabber.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/grabber/SpotifyGrabber.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/grabber/SpotifyGrabber.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/grabber/YouTubeGrabber.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/grabber/YouTubeGrabber.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/image/ChartCollage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/image/ChartCollage.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/image/Cover.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/image/Cover.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/ui/VisualizorUI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ui/VisualizorUI.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/util/ImageCollageCreator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/util/ImageCollageCreator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/util/PlaylistIDManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/util/PlaylistIDManager.java" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/target/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -30,14 +20,14 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/grabber/SpotifyGrabber.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="350">
-              <caret line="87" column="97" selection-start-line="87" selection-start-column="97" selection-end-line="87" selection-end-column="97" />
+            <state relative-caret-position="318">
+              <caret line="153" column="36" lean-forward="true" selection-start-line="153" selection-start-column="36" selection-end-line="153" selection-end-column="36" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="e#7072#7073#0" expanded="true" />
+                <element signature="e#7280#7281#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -46,8 +36,13 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/ui/VisualizorUI.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="186">
-              <caret line="261" selection-start-line="261" selection-end-line="261" />
+            <state relative-caret-position="582">
+              <caret line="281" column="21" lean-forward="true" selection-start-line="281" selection-start-column="21" selection-end-line="281" selection-end-column="21" />
+              <folding>
+                <element signature="e#8658#9093#0" expanded="true" />
+                <element signature="e#10721#11047#0" expanded="true" />
+                <element signature="e#11046#11047#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -55,7 +50,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/util/ImageCollageCreator.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="449">
+            <state relative-caret-position="248">
               <caret line="238" column="12" selection-start-line="238" selection-start-column="12" selection-end-line="238" selection-end-column="12" />
               <folding>
                 <element signature="e#6844#6845#0" expanded="true" />
@@ -68,8 +63,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/grabber/Grabber.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="242">
-              <caret line="72" column="67" selection-start-line="72" selection-start-column="67" selection-end-line="72" selection-end-column="67" />
+            <state relative-caret-position="219">
+              <caret line="30" column="18" selection-start-line="30" selection-start-column="18" selection-end-line="30" selection-end-column="18" />
             </state>
           </provider>
         </entry>
@@ -92,15 +87,15 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/image/Cover.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="142">
-              <caret line="165" column="34" selection-start-line="165" selection-start-column="34" selection-end-line="165" selection-end-column="34" />
+            <state relative-caret-position="175">
+              <caret line="247" column="30" selection-start-line="247" selection-start-column="30" selection-end-line="247" selection-end-column="30" />
               <folding>
                 <element signature="e#7475#7484#0" expanded="true" />
-                <element signature="e#10399#10400#0" expanded="true" />
-                <element signature="e#10505#10506#0" expanded="true" />
+                <element signature="e#10396#10397#0" expanded="true" />
+                <element signature="e#10502#10503#0" expanded="true" />
                 <element signature="e#9985#10236#0" expanded="true" />
                 <element signature="e#10235#10236#0" expanded="true" />
               </folding>
@@ -109,19 +104,10 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/pom.xml">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="296">
-              <caret line="15" column="40" selection-start-line="15" selection-start-column="40" selection-end-line="15" selection-end-column="40" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/image/ChartCollage.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="214">
-              <caret line="32" column="18" selection-start-line="32" selection-start-column="8" selection-end-line="32" selection-end-column="18" />
+            <state relative-caret-position="-902">
+              <caret line="21" column="21" lean-forward="true" selection-start-line="21" selection-start-column="21" selection-end-line="21" selection-end-column="21" />
             </state>
           </provider>
         </entry>
@@ -137,7 +123,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>DEFAULT_HTTP_MANAGER</find>
       <find>print</find>
       <find>getimage</find>
       <find>geturl</find>
@@ -156,17 +141,18 @@
       <find>draw</find>
       <find>c</find>
       <find>swingwork</find>
-      <find>execute</find>
       <find>delete</find>
       <find>filename</find>
-      <find>setstring</find>
       <find>download</find>
       <find>maincolor</find>
       <find>darker</find>
       <find>label</find>
       <find>str =</find>
-      <find>reverse</find>
       <find>plugin</find>
+      <find>setstring</find>
+      <find>reverse</find>
+      <find>execute</find>
+      <find>sleep</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -181,11 +167,11 @@
         <option value="$PROJECT_DIR$/src/main/java/grabber/APlayerAPIGrabber.java" />
         <option value="$PROJECT_DIR$/src/main/java/ui/VisualizorUI.java" />
         <option value="$PROJECT_DIR$/src/main/java/grabber/Grabber.java" />
-        <option value="$PROJECT_DIR$/src/main/java/image/ChartCollage.java" />
-        <option value="$PROJECT_DIR$/src/main/java/image/Cover.java" />
         <option value="$PROJECT_DIR$/src/main/java/util/ImageCollageCreator.java" />
         <option value="$PROJECT_DIR$/pom.xml" />
+        <option value="$PROJECT_DIR$/src/main/java/image/ChartCollage.java" />
         <option value="$PROJECT_DIR$/src/main/java/grabber/SpotifyGrabber.java" />
+        <option value="$PROJECT_DIR$/src/main/java/image/Cover.java" />
       </list>
     </option>
   </component>
@@ -324,7 +310,7 @@
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="android.sdk.path" value="$USER_HOME$/AppData/Local/Android/Sdk" />
     <property name="aspect.path.notification.shown" value="true" />
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1565690475340" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1565693060200" />
     <property name="extract.method.default.visibility" value="private" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="project.structure.last.edited" value="Artifacts" />
@@ -418,12 +404,12 @@
       <workItem from="1565640512676" duration="8995000" />
       <workItem from="1565650327701" duration="172000" />
       <workItem from="1565652337952" duration="5384000" />
-      <workItem from="1565658624937" duration="17538000" />
+      <workItem from="1565658624937" duration="20110000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="32951000" />
+    <option name="totallyTimeSpent" value="35523000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -610,13 +596,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/grabber/APlayerAPIGrabber.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="878">
-          <caret line="109" column="42" selection-start-line="109" selection-start-column="42" selection-end-line="109" selection-end-column="42" />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://$MAVEN_REPOSITORY$/se/michaelthelin/spotify/spotify-web-api-java/2.2.0/spotify-web-api-java-2.2.0-sources.jar!/com/wrapper/spotify/exceptions/SpotifyWebApiException.java">
       <provider selected="true" editor-type-id="text-editor">
         <state>
@@ -649,49 +628,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/ui/VisualizorUI.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="186">
-          <caret line="261" selection-start-line="261" selection-end-line="261" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/grabber/Grabber.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="242">
-          <caret line="72" column="67" selection-start-line="72" selection-start-column="67" selection-end-line="72" selection-end-column="67" />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://C:/Program Files/Java/jdk-11/lib/src.zip!/java.base/java/lang/String.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="887">
           <caret line="2642" column="18" selection-start-line="2642" selection-start-column="18" selection-end-line="2642" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/util/ImageCollageCreator.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="449">
-          <caret line="238" column="12" selection-start-line="238" selection-start-column="12" selection-end-line="238" selection-end-column="12" />
-          <folding>
-            <element signature="e#6844#6845#0" expanded="true" />
-            <element signature="e#6905#6906#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/image/Cover.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="142">
-          <caret line="165" column="34" selection-start-line="165" selection-start-column="34" selection-end-line="165" selection-end-column="34" />
-          <folding>
-            <element signature="e#7475#7484#0" expanded="true" />
-            <element signature="e#10399#10400#0" expanded="true" />
-            <element signature="e#10505#10506#0" expanded="true" />
-            <element signature="e#9985#10236#0" expanded="true" />
-            <element signature="e#10235#10236#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -702,20 +642,71 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/grabber/APlayerAPIGrabber.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="878">
+          <caret line="109" column="42" selection-start-line="109" selection-start-column="42" selection-end-line="109" selection-end-column="42" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/util/ImageCollageCreator.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="248">
+          <caret line="238" column="12" selection-start-line="238" selection-start-column="12" selection-end-line="238" selection-end-column="12" />
+          <folding>
+            <element signature="e#6844#6845#0" expanded="true" />
+            <element signature="e#6905#6906#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/image/ChartCollage.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="214">
-          <caret line="32" column="18" selection-start-line="32" selection-start-column="8" selection-end-line="32" selection-end-column="18" />
+        <state relative-caret-position="-902">
+          <caret line="21" column="21" lean-forward="true" selection-start-line="21" selection-start-column="21" selection-end-line="21" selection-end-column="21" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/grabber/Grabber.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="219">
+          <caret line="30" column="18" selection-start-line="30" selection-start-column="18" selection-end-line="30" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ui/VisualizorUI.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="582">
+          <caret line="281" column="21" lean-forward="true" selection-start-line="281" selection-start-column="21" selection-end-line="281" selection-end-column="21" />
+          <folding>
+            <element signature="e#8658#9093#0" expanded="true" />
+            <element signature="e#10721#11047#0" expanded="true" />
+            <element signature="e#11046#11047#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/grabber/SpotifyGrabber.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="350">
-          <caret line="87" column="97" selection-start-line="87" selection-start-column="97" selection-end-line="87" selection-end-column="97" />
+        <state relative-caret-position="318">
+          <caret line="153" column="36" lean-forward="true" selection-start-line="153" selection-start-column="36" selection-end-line="153" selection-end-column="36" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#7072#7073#0" expanded="true" />
+            <element signature="e#7280#7281#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/image/Cover.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="175">
+          <caret line="247" column="30" selection-start-line="247" selection-start-column="30" selection-end-line="247" selection-end-column="30" />
+          <folding>
+            <element signature="e#7475#7484#0" expanded="true" />
+            <element signature="e#10396#10397#0" expanded="true" />
+            <element signature="e#10502#10503#0" expanded="true" />
+            <element signature="e#9985#10236#0" expanded="true" />
+            <element signature="e#10235#10236#0" expanded="true" />
           </folding>
         </state>
       </provider>

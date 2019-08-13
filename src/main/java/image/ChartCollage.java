@@ -75,11 +75,11 @@ public class ChartCollage extends Collage {
     }
 
     private void drawFooter(int imageWidth) {
-        BufferedImage section = new BufferedImage(Cover.DETAIL_X + imageWidth, FOOTER_HEIGHT - 1, BufferedImage.TYPE_INT_RGB);
+        BufferedImage section = new BufferedImage(Cover.DETAIL_X + imageWidth, FOOTER_HEIGHT, BufferedImage.TYPE_INT_RGB);
         Graphics2D background = section.createGraphics();
 
         background.setColor(Color.white);
-        background.fillRect(0, 1, Cover.DETAIL_X + imageWidth, FOOTER_HEIGHT - 1);
+        background.fillRect(0, 1, Cover.DETAIL_X + imageWidth, FOOTER_HEIGHT);
         background.dispose();
 
         background = section.createGraphics();

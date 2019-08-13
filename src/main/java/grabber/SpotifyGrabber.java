@@ -103,9 +103,12 @@ public class SpotifyGrabber extends Grabber {
                 playlistTrackPaging = getPlaylistsTracksRequest.execute();
             } catch (TooManyRequestsException e) {
                 try {
-                    Thread.sleep(e.getRetryAfter() * 1000);
-                    System.out.println(e.getMessage() + " sleep for " + e.getRetryAfter());
-                    playlistTrackPaging = getPlaylistsTracksRequest.execute();
+                    synchronized (this) {
+                        wait(e.getRetryAfter() * 1000);
+//                        Thread.sleep();
+                        System.out.println(e.getMessage() + " sleep for " + e.getRetryAfter());
+                        playlistTrackPaging = getPlaylistsTracksRequest.execute();
+                    }
                 } catch (Exception ex) {
                     System.out.println(ex.getMessage());
                 }
@@ -142,9 +145,12 @@ public class SpotifyGrabber extends Grabber {
             album = getAlbumRequest.execute();
         } catch (TooManyRequestsException e) {
             try {
-                Thread.sleep(e.getRetryAfter() * 1000);
-                System.out.println(e.getMessage() + " sleep for " + e.getRetryAfter());
-                album = getAlbumRequest.execute();
+                synchronized (this) {
+                    wait(e.getRetryAfter() * 1000);
+//                    Thread.sleep();
+                    System.out.println(e.getMessage() + " sleep for " + e.getRetryAfter());
+                    album = getAlbumRequest.execute();
+                }
             } catch (Exception ex) {
                 System.out.println(ex.getMessage());
             }

@@ -163,9 +163,9 @@ public class Cover {
         y = drawing_y[id];
         size = SIZE[id];
 
-        if (str.trim() == "烏雲典當記 / An Adventure in The Dark Clouds Market") {
-            str = "大石碎胸口";
-        }
+//        if (str.contains("An Adventure in The Dark Clouds Market")) {
+//            str = "大石碎胸口";
+//        }
 
         switch (id) {
             case DRAWSTRING_TITLE:
@@ -245,7 +245,7 @@ public class Cover {
 
     public Color getDarkerColor(Color c) {
         float luminance = this.CalculateLuminance(c);
-        while (luminance > 200) {
+        while (luminance > 180) {
             c = c.darker();
             luminance = this.CalculateLuminance(c);
         }
