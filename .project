@@ -3,6 +3,7 @@
 	<name>Musical-Wallpaper-new</name>
 	<comment></comment>
 	<projects>
+		<project>RxTube</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

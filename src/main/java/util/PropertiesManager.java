@@ -1,3 +1,5 @@
+package util;
+
 import java.io.*;
 import java.util.Properties;
 
@@ -5,7 +7,7 @@ import java.util.Properties;
 public class PropertiesManager {
 
     private static final String propertiesPath = System.getProperty("user.home") + File.separator + "Pictures"
-                    + File.separator + "Musical Wallpaper" + File.separator + "userPrefs.properties";
+                    + File.separator + "Spotify Playlist Visualizor" + File.separator + "userPrefs.properties";
 
     private static Properties getProperties() throws IOException {
         Properties properties = new Properties();
@@ -38,6 +40,10 @@ public class PropertiesManager {
         FileWriter fileWriter = new FileWriter(propertiesPath);
         properties.store(fileWriter, null);
         fileWriter.close();
+    }
+    
+    public static void setProperty(String prop, int value) throws IOException {
+        setProperty(prop, Integer.toString(value));
     }
 
 //    public static void setAllPropertiesToDefault() throws IOException {
