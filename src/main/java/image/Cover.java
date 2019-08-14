@@ -160,7 +160,6 @@ public class Cover {
 
         int cn_pos = findChineseChar(str, 0);
         int en_pos = findEnglishChar(str, 0);
-        int width = 0;
 
         if (cn_pos == -1) {
             resizeFontToDrawString(str, frc, en_font, x, y);
@@ -173,17 +172,34 @@ public class Cover {
             return;
         }
 
+        int width = 0;
+
         while (cn_pos != -1 || en_pos != -1) {
             if (en_pos == -1) en_pos = str.length();
             if (cn_pos == -1) cn_pos = str.length();
             // there are chinese char
             // draw english char first
-            if (en_pos < cn_pos) {
+            if (en_pos <= cn_pos) {
                 String en_str = str.substring(en_pos, cn_pos);
-                width += (int) en_font.getStringBounds(en_str, frc).getWidth();
 
                 background.setFont(en_font);
-                background.drawString(en_str, x + width, y);
+                int ogPos = width;
+                width += (int) en_font.getStringBounds(en_str, frc).getWidth();
+
+                if (width > DETAIL_X - x * 2) {
+                    String curr = en_str.substring(0, en_str.length() - 4) + ellipsis;
+                    width = (int) en_font.getStringBounds(curr, frc).getWidth();
+                    int ellipsisLen = (int) en_font.getStringBounds(ellipsis, frc).getWidth();
+
+                    while (width > DETAIL_X - x * 2 - ellipsisLen) {
+                        curr = curr.substring(0, curr.length() - 4) + ellipsis;
+                        width = (int) en_font.getStringBounds(curr, frc).getWidth();
+                    }
+                    background.drawString(en_str, x + ogPos, y);
+                    return;
+                } else {
+                    background.drawString(en_str, x + ogPos, y);
+                }
 
                 cn_pos = findChineseChar(str, en_pos + 1);
                 en_pos = findEnglishChar(str, cn_pos);
@@ -191,8 +207,23 @@ public class Cover {
                 // draw chinese char
                 String cn_str = str.substring(cn_pos, en_pos);
                 background.setFont(cn_font);
-                background.drawString(cn_str, x + width, y);
+                int ogPos = width;
                 width += (int) cn_font.getStringBounds(cn_str, frc).getWidth();
+
+                if (width > DETAIL_X - x * 2) {
+                    cn_str = cn_str.substring(0, cn_str.length() - 4) + ellipsis;
+                    width = (int) cn_font.getStringBounds(cn_str, frc).getWidth();
+                    int ellipsisLen = (int) cn_font.getStringBounds(ellipsis, frc).getWidth();
+
+                    while (width > DETAIL_X - x * 2 - ellipsisLen) {
+                        cn_str = cn_str.substring(0, cn_str.length() - 4) + ellipsis;
+                        width = (int) cn_font.getStringBounds(cn_str, frc).getWidth();
+                    }
+                    background.drawString(cn_str, x + ogPos, y);
+                    return;
+                } else {
+                    background.drawString(cn_str, x + ogPos, y);
+                }
 
                 en_pos = findEnglishChar(str, cn_pos + 1);
                 cn_pos = findChineseChar(str, en_pos);
@@ -200,15 +231,16 @@ public class Cover {
         }
     }
 
+    final String ellipsis = "...";
+
     private void resizeFontToDrawString(String str, FontRenderContext frc, Font font, int x, int y) {
-        final String ellipsis = "...";
 
         int width = (int) font.getStringBounds(str, frc).getWidth();
         Font newFont = font;
 
         for (int i = 0; i < 2; i++) {
             if (width > DETAIL_X - x * 2) {
-                newFont = newFont.deriveFont((float)newFont.getSize() * 0.9f);
+                newFont = newFont.deriveFont((float) newFont.getSize() * 0.95f);
                 width = (int) newFont.getStringBounds(str, frc).getWidth();
             }
         }

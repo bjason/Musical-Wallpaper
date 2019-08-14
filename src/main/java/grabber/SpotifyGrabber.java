@@ -131,12 +131,18 @@ public class SpotifyGrabber extends Grabber {
                 }
             }
         }
-//        addTrackManually("2010", "Good Intentions Paving Company","Joanna Newsom", 10);
+
+        // add track manually example.
+        // After input correct information, go to the directory:
+        // C:\Users\YOUR USER NAME\Pictures\Spotify Playlist Visualizor\Album art
+        // And add the album cover to it naming in the format of "Title - Artist"
+        // In this case: Good Intentions Paving Company - Joanna Newsom.jpg
+        addTrackManually("2010", "Good Intentions Paving Company", "Joanna Newsom", 10);
 
         Collections.reverse(allTracksInfo);
     }
 
-    private void addTrackManually(String releaseDate, String trackTitle, String artistName, int order ) {
+    private void addTrackManually(String releaseDate, String trackTitle, String artistName, int order) {
         HashMap<String, String> curr = saveBasicInfo(order, trackTitle, artistName, "");
         curr.put("ReleaseDate", releaseDate);
 
@@ -167,18 +173,21 @@ public class SpotifyGrabber extends Grabber {
 
         String releaseDate = album.getReleaseDate();
         String label = album.getLabel();
-
         String trackTitle = track.getName();
-        String artistName = track.getArtists()[0].getName();
-//        String trackName_forSave = trackTitle.replaceAll("[\\\\/:*?\"<>|]", "_");
-//        String artistName_forSave = artistName.replaceAll("[\\\\/:*?\"<>|]", "_");
+        if (trackTitle.contains("An Adventure in The Dark Clouds Market"))
+            trackTitle = "大石碎胸口";
+
+        ArtistSimplified[] artistsList = track.getArtists();
+        String artistName = artistsList[0].getName();
+        for (int i = 1; i < artistsList.length; i++) {
+            artistName += ", " + artistsList[i].getName();
+        }
 
         HashMap<String, String> curr = saveBasicInfo(order, trackTitle, artistName, url);
         curr.put("ReleaseDate", releaseDate);
         curr.put("Label", label);
 
         allTracksInfo.add(curr);
-//        setFileName(trackNamesAndImages, order, suffix, url, trackName_forSave, artistName_forSave);
     }
 
 
