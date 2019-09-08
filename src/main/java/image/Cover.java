@@ -69,6 +69,7 @@ public class Cover {
     }
 
     public BufferedImage getImage(String dir) throws IOException {
+        System.out.println(dir);
         BufferedImage bufferedImage = ImageIO.read(new File(dir));
         return bufferedImage;
     }
@@ -188,7 +189,7 @@ public class Cover {
 
                 if (width > DETAIL_X - x * 2) {
                     String curr = en_str.substring(0, en_str.length() - 4) + ellipsis;
-                    width = (int) en_font.getStringBounds(curr, frc).getWidth();
+                    width = ogPos + (int) en_font.getStringBounds(curr, frc).getWidth();
                     int ellipsisLen = (int) en_font.getStringBounds(ellipsis, frc).getWidth();
 
                     while (width > DETAIL_X - x * 2 - ellipsisLen) {
@@ -212,7 +213,7 @@ public class Cover {
 
                 if (width > DETAIL_X - x * 2) {
                     cn_str = cn_str.substring(0, cn_str.length() - 4) + ellipsis;
-                    width = (int) cn_font.getStringBounds(cn_str, frc).getWidth();
+                    width = ogPos + (int) cn_font.getStringBounds(cn_str, frc).getWidth();
                     int ellipsisLen = (int) cn_font.getStringBounds(ellipsis, frc).getWidth();
 
                     while (width > DETAIL_X - x * 2 - ellipsisLen) {
@@ -246,6 +247,7 @@ public class Cover {
         }
 
         if (width > DETAIL_X - x * 2) {
+            newFont = font;
             str = str.substring(0, str.length() - 4) + ellipsis;
             width = (int) newFont.getStringBounds(str, frc).getWidth();
             int ellipsisLen = (int) newFont.getStringBounds(ellipsis, frc).getWidth();

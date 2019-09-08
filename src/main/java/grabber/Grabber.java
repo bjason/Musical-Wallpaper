@@ -79,7 +79,7 @@ public abstract class Grabber extends SwingWorker<Void, Void> {
             // create a file in the DIRECTORY, named after the track
             // String cleanedAlbum = getCleanedFilename(album); // remove
             // invalid characters
-            String fileName = Collage.getFileName(trackInfo.get("Title"),
+            String fileName = Collage.getFileName(trackInfo.get("Album"),
                     trackInfo.get("Artist"), ".jpg");
 
             String path = DIRECTORY + File.separator + fileName;
@@ -92,11 +92,11 @@ public abstract class Grabber extends SwingWorker<Void, Void> {
 
             // download the image
             URL url = new URL(trackInfo.get("url").replace("https", "http"));
+            System.out.println("Request URL ... " + url);
             BufferedImage image;
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setReadTimeout(5000);
 
-            System.out.println("Request URL ... " + url);
             // normally, 3xx is redirect
             int status = conn.getResponseCode();
             image = ImageIO.read(url);
@@ -154,12 +154,13 @@ public abstract class Grabber extends SwingWorker<Void, Void> {
         return filename.toString();
     }
 
-    protected HashMap<String, String> saveBasicInfo(int i, String trackName, String artistName, String imageUrl) {
+    protected HashMap<String, String> saveBasicInfo(int i, String trackName, String artistName, String imageUrl, String albumTitle) {
         HashMap<String, String> curr = new HashMap<>();
         curr.put("order", i + "");
         curr.put("Title", trackName);
         curr.put("Artist", artistName);
         curr.put("url", imageUrl);
+        curr.put("Album", albumTitle);
         return curr;
     }
 }

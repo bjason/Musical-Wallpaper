@@ -82,7 +82,7 @@ public class Collage extends BufferedImage {
 	}
 
 	public static String getFileName(HashMap<String, String> trackInfo, String suffix){
-		String title = trackInfo.get("Title");
+		String title = trackInfo.get("Album");
 		String artistName = trackInfo.get("Artist");
 		return getFileName(title, artistName, suffix);
 	}

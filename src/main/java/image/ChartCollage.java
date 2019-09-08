@@ -96,11 +96,11 @@ public class ChartCollage extends Collage {
 
         background.setColor(Color.WHITE);
         background.fillRect(0, 0, COLLAGE_X, TITLE_HEIGHT);
-        background.dispose();
 
         Font font = new Font(Cover.EN_FONT, Font.BOLD, 70);
 
         resizeFontToDrawString(background, title, font, 10, 100);
+        background.dispose();
 
         g.drawImage(section, 0, 0, null);
     }

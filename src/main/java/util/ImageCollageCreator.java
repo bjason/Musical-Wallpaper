@@ -219,7 +219,7 @@ public class ImageCollageCreator extends SwingWorker<Void, Void> {
 		File[] files = new File(inputDir).listFiles();
 
 		if (files == null) {
-			errorCode = "No directary built.";
+			errorCode = "No directory built.";
 			return null;
 		} else {
 			ArrayList<String> images = new ArrayList<>();

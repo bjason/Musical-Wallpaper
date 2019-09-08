@@ -10,11 +10,13 @@ import com.wrapper.spotify.requests.authorization.client_credentials.ClientCrede
 import com.wrapper.spotify.requests.data.albums.GetAlbumRequest;
 import com.wrapper.spotify.requests.data.playlists.GetPlaylistRequest;
 import com.wrapper.spotify.requests.data.playlists.GetPlaylistsTracksRequest;
+import org.json.JSONArray;
 import ui.VisualizorUI;
 import util.InvalidPlaylistURLException;
 import util.NoneInPlaylistException;
 import util.PropertiesManager;
 
+import java.awt.*;
 import java.io.IOException;
 import java.util.*;
 
@@ -62,6 +64,7 @@ public class SpotifyGrabber extends Grabber {
     private void getAlbumImagesInPlaylist()
             throws IOException, SpotifyWebApiException, NoneInPlaylistException {
         int loopsRequired;
+        JSONArray jsonArray = new JSONArray();
 
         if (allTracksInfo == null) {
             allTracksInfo = new ArrayList<>();
@@ -104,12 +107,13 @@ public class SpotifyGrabber extends Grabber {
             } catch (TooManyRequestsException e) {
                 try {
                     synchronized (this) {
-                        wait(e.getRetryAfter() * 1000);
-//                        Thread.sleep();
+//                        wait();
+                        Thread.sleep(e.getRetryAfter() * 1000);
                         System.out.println(e.getMessage() + " sleep for " + e.getRetryAfter());
                         playlistTrackPaging = getPlaylistsTracksRequest.execute();
                     }
                 } catch (Exception ex) {
+                    System.out.println("Paging error");
                     System.out.println(ex.getMessage());
                 }
             }
@@ -137,13 +141,20 @@ public class SpotifyGrabber extends Grabber {
         // C:\Users\YOUR USER NAME\Pictures\Spotify Playlist Visualizor\Album art
         // And add the album cover to it naming in the format of "Title - Artist"
         // In this case: Good Intentions Paving Company - Joanna Newsom.jpg
-        addTrackManually("2010", "Good Intentions Paving Company", "Joanna Newsom", 10);
+        addTrackManually("2010",
+                "Good Intentions Paving Company",
+                "Joanna Newsom",
+                10,
+                "Have One on Me");
 
         Collections.reverse(allTracksInfo);
+
+        // save allTracksInfo as json
+
     }
 
-    private void addTrackManually(String releaseDate, String trackTitle, String artistName, int order) {
-        HashMap<String, String> curr = saveBasicInfo(order, trackTitle, artistName, "");
+    private void addTrackManually(String releaseDate, String trackTitle, String artistName, int order, String album) {
+        HashMap<String, String> curr = saveBasicInfo(order, trackTitle, artistName, "", album);
         curr.put("ReleaseDate", releaseDate);
 
         allTracksInfo.add(order - 1, curr);
@@ -153,7 +164,23 @@ public class SpotifyGrabber extends Grabber {
     private void getURLFromAPI(int order, Track track,
                                AlbumSimplified albumSimplified, int imageNum)
             throws IOException, SpotifyWebApiException {
+
+        // artist info
+        ArtistSimplified[] artistsList = track.getArtists();
+        String artistName = artistsList[0].getName();
+        for (int i = 1; i < artistsList.length; i++) {
+            artistName += ", " + artistsList[i].getName();
+        }
+
+        // title
+        String trackTitle = track.getName();
+        if (trackTitle.contains("An Adventure in The Dark Clouds Market"))
+            trackTitle = "大石碎胸口";
+
+        // determine to retrieve track info or not
+
         String url = albumSimplified.getImages()[imageNum].getUrl();
+        String albumTitle = albumSimplified.getName();
 
         Album album = null;
         GetAlbumRequest getAlbumRequest = spotifyApi.getAlbum(albumSimplified.getId()).build();
@@ -163,27 +190,20 @@ public class SpotifyGrabber extends Grabber {
             try {
                 synchronized (this) {
                     System.out.println(e.getMessage() + " sleep for " + e.getRetryAfter());
-                    wait(e.getRetryAfter() * 1000);
+//                    wait();
+                    Thread.sleep(e.getRetryAfter() * 1000);
                     album = getAlbumRequest.execute();
                 }
             } catch (Exception ex) {
+                System.out.println("another exception");
                 System.out.println(ex.getMessage());
             }
         }
 
         String releaseDate = album.getReleaseDate();
         String label = album.getLabel();
-        String trackTitle = track.getName();
-        if (trackTitle.contains("An Adventure in The Dark Clouds Market"))
-            trackTitle = "大石碎胸口";
 
-        ArtistSimplified[] artistsList = track.getArtists();
-        String artistName = artistsList[0].getName();
-        for (int i = 1; i < artistsList.length; i++) {
-            artistName += ", " + artistsList[i].getName();
-        }
-
-        HashMap<String, String> curr = saveBasicInfo(order, trackTitle, artistName, url);
+        HashMap<String, String> curr = saveBasicInfo(order, trackTitle, artistName, url, albumTitle);
         curr.put("ReleaseDate", releaseDate);
         curr.put("Label", label);
 

@@ -83,8 +83,9 @@ public class APlayerAPIGrabber extends Grabber {
 				String trackName = track.getString("title");
 				String artistName = track.getString("author");
 				String imageUrl = track.getString("pic");
+				String album = ""; // TODO
 
-				HashMap<String, String> curr = saveBasicInfo(i, trackName, artistName, imageUrl);
+				HashMap<String, String> curr = saveBasicInfo(i, trackName, artistName, imageUrl, album);
 				allTracksInfo.add(curr);
 			}
 		} else throw new InvalidPlaylistURLException();
